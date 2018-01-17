@@ -49,7 +49,7 @@ defmodule Authority.Ecto.Changeset do
   """
   def put_encrypted_password(changeset, source, destination, algorithm \\ :bcrypt) do
     password = get_change(changeset, source)
-    confirmation = String.to_atom(Atom.to_string(source) <> "_confirmation")
+    confirmation = String.to_existing_atom(Atom.to_string(source) <> "_confirmation")
 
     if password do
       changeset
