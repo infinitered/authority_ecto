@@ -27,7 +27,11 @@ defmodule Authority.Ecto.MixProject do
     [
       {:authority, ">= 0.0.0"},
       {:ecto, ">= 0.0.0"},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :test]}
+      {:comeonin, ">= 0.0.0"},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
+      {:bcrypt_elixir, ">= 0.0.0", only: [:dev, :test]},
+      {:argon2_elixir, ">= 0.0.0", only: [:dev, :test]},
+      {:pbkdf2_elixir, ">= 0.0.0", only: [:dev, :test]}
     ]
   end
 end

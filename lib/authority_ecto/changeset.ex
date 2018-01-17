@@ -29,6 +29,38 @@ defmodule Authority.Ecto.Changeset do
     end
   end
 
+  @doc """
+  Hashes the value stored in the `source` field, and puts the resulting
+  hash in the `destination` field. The `source` field will be removed
+  from the changeset.
+
+  By default, the password will be hashed using `Comeonin.Bcrypt`. See
+  `put_encrypted_password/4` to use a different algorithm. Valid options
+  are `:bcrypt`, `:argon2`, or `:pbkdf2`.
+
+  ## Examples
+
+      iex> put_encrypted_password(changeset, :password, :encrypted_password)
+      %Ecto.Changeset{}
+
+      iex> put_encrypted_password(changeset, :password, :encrypted_password, :argon2)
+      %Ecto.Changeset{}
+
+  """
+  def put_encrypted_password(changeset, source, destination, algorithm \\ :bcrypt) do
+    password = get_change(changeset, source)
+    confirmation = String.to_atom(Atom.to_string(source) <> "_confirmation")
+
+    if password do
+      changeset
+      |> put_change(destination, hash_password(algorithm, password))
+      |> delete_change(source)
+      |> delete_change(confirmation)
+    else
+      changeset
+    end
+  end
+
   defp parse_timespec(nil), do: nil
 
   defp parse_timespec({n, :hours}) do
@@ -44,5 +76,24 @@ defmodule Authority.Ecto.Changeset do
     |> DateTime.to_unix()
     |> Kernel.+(n)
     |> DateTime.from_unix!()
+  end
+
+  Enum.each(
+    [
+      bcrypt: Comeonin.Bcrypt,
+      argon2: Comeonin.Argon2,
+      pbkdf2: Comeonin.Pbkdf2
+    ],
+    fn {name, mod} ->
+      if Code.ensure_compiled?(mod) do
+        defp hash_password(unquote(name), value) do
+          unquote(mod).hashpwsalt(value)
+        end
+      end
+    end
+  )
+
+  defp hash_password(name, _value) do
+    raise "Invalid algorithm: #{name}. Did you forget to install #{name}_elixir?"
   end
 end
