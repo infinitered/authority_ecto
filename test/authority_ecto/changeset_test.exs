@@ -78,4 +78,58 @@ defmodule Authority.Ecto.ChangesetTest do
 
     refute get_change(changeset, :expires_at)
   end
+
+  test "validate_secure_password/2 requires password longer than 8" do
+    changeset =
+      change_secure_password(%{
+        password: "passwor",
+        password_confirmation: "passwor"
+      })
+
+    assert changeset.errors[:password] == {
+             "should be at least %{count} character(s)",
+             [count: 8, validation: :length, min: 8]
+           }
+  end
+
+  test "validate_secure_password/2 requires confirmation presence" do
+    changeset = change_secure_password(%{password: "okPa$$wOrd"})
+
+    assert changeset.errors[:password_confirmation] == {
+             "can't be blank",
+             [validation: :required]
+           }
+  end
+
+  test "validate_secure_password/2 requires confirmation to match" do
+    changeset =
+      change_secure_password(%{
+        password: "okPass$$w0rd",
+        password_confirmation: "HACKER"
+      })
+
+    assert changeset.errors[:password_confirmation] == {
+             "does not match confirmation",
+             [validation: :confirmation]
+           }
+  end
+
+  test "validate_secure_password/2 checks for common passwords" do
+    changeset =
+      change_secure_password(%{
+        password: "password",
+        password_confirmation: "password"
+      })
+
+    assert changeset.errors[:password] == {
+             "is too common",
+             [validation: :exclusion]
+           }
+  end
+
+  defp change_secure_password(params) do
+    %User{}
+    |> cast(params, [:password, :password_confirmation])
+    |> Changeset.validate_secure_password(:password)
+  end
 end

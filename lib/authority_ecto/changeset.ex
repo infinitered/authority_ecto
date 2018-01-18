@@ -7,8 +7,23 @@ defmodule Authority.Ecto.Changeset do
 
   @type field :: atom
 
+  @password_blacklist File.cwd!()
+                      |> Path.join("password_blacklist.txt")
+                      |> File.read!()
+                      |> String.split("\n")
+
   @doc """
-  Generates a random token value into the given field if it is nil. 
+  Validate that a given password passes some security best practices.
+  """
+  def validate_secure_password(changeset, field) do
+    changeset
+    |> validate_length(field, min: 8)
+    |> validate_confirmation(field, required: true)
+    |> validate_exclusion(field, @password_blacklist, message: "is too common")
+  end
+
+  @doc """
+  Generates a random token value into the given field if it is nil.
 
   Best when paired with `Authority.Ecto.HMAC` or
   [Cloak](https://github.com/danielberkompas/cloak) encryption to prevent
@@ -45,7 +60,7 @@ defmodule Authority.Ecto.Changeset do
 
   @doc """
   Based on the token's `purpose`, assign an expiration `DateTime` in the
-  given field. 
+  given field.
 
   The value of the `purpose` field should correspond to a key in the `config`
   list. The following formats are supported:
@@ -87,11 +102,15 @@ defmodule Authority.Ecto.Changeset do
 
   ## Examples
 
-      iex> put_encrypted_password(changeset, :password, :encrypted_password)
-      %Ecto.Changeset{}
+      iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
+      ...> changeset = put_encrypted_password(changeset, :password, :encrypted_password)
+      ...> Comeonin.Bcrypt.checkpw("testing123", get_change(changeset, :encrypted_password))
+      true
 
-      iex> put_encrypted_password(changeset, :password, :encrypted_password, :argon2)
-      %Ecto.Changeset{}
+      iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
+      ...> changeset = put_encrypted_password(changeset, :password, :encrypted_password, :argon2)
+      ...> Comeonin.Argon2.checkpw("testing123", get_change(changeset, :encrypted_password))
+      true
 
   """
   def put_encrypted_password(changeset, source, destination, algorithm \\ :bcrypt) do
