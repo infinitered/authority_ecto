@@ -6,6 +6,8 @@ defmodule Authority.Ecto.ChangesetTest do
   alias Authority.Ecto.Changeset
   alias Authority.Ecto.Test.Token
 
+  doctest Authority.Ecto.Changeset, import: true
+
   @expirations %{
     "72_hours" => {72, :hours}
   }
