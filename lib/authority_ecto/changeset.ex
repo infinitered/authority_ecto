@@ -181,6 +181,7 @@ defmodule Authority.Ecto.Changeset do
   The value of the `purpose` field should correspond to a key in the `config`
   list. The following formats are supported:
 
+      {n, :days}
       {n, :hours}
       {n, :minutes}
       {n, :seconds}
@@ -244,6 +245,10 @@ defmodule Authority.Ecto.Changeset do
   end
 
   defp parse_timespec(nil), do: nil
+
+  defp parse_timespec({n, :days}) do
+    parse_timespec({n * 24, :hours})
+  end
 
   defp parse_timespec({n, :hours}) do
     parse_timespec({n * 60, :minutes})

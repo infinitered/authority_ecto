@@ -4,15 +4,20 @@ defmodule Authority.Ecto.Test.Token do
   use Ecto.Schema
 
   import Ecto.Changeset
+  import Authority.Ecto.Changeset
 
   defmodule Purpose do
     use Exnumerator, values: [:any, :recovery, :other]
   end
 
+  defmodule HMAC do
+    use Authority.Ecto.HMAC, secret: "authority"
+  end
+
   schema "tokens" do
     belongs_to(:user, Authority.Ecto.Test.User)
 
-    field(:token, :string)
+    field(:token, HMAC)
     field(:expires_at, :utc_datetime)
     field(:purpose, Purpose)
 
@@ -22,30 +27,8 @@ defmodule Authority.Ecto.Test.Token do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:expires_at, :purpose])
-    |> put_change(:token, Ecto.UUID.generate())
-    |> put_expires_at()
-  end
-
-  defp put_expires_at(changeset) do
-    expires_at =
-      case get_field(changeset, :purpose) do
-        :recovery ->
-          # 24 hours
-          add(DateTime.utc_now(), 86_400)
-
-        _other ->
-          # 2 weeks
-          add(DateTime.utc_now(), 1_209_600)
-      end
-
-    put_change(changeset, :expires_at, expires_at)
-  end
-
-  defp add(datetime, seconds) do
-    datetime
-    |> DateTime.to_unix()
-    |> Kernel.+(seconds)
-    |> DateTime.from_unix!()
+    |> put_token(:token)
+    |> put_token_expiration(:expires_at, :purpose, recovery: {24, :hours}, any: {14, :days})
   end
 
   def sigil_K(token, _) do
