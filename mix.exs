@@ -8,7 +8,8 @@ defmodule Authority.Ecto.MixProject do
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -29,9 +30,15 @@ defmodule Authority.Ecto.MixProject do
       {:ecto, ">= 0.0.0"},
       {:comeonin, ">= 0.0.0"},
       {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
+      {:exnumerator, ">= 0.0.0", only: [:dev, :test]},
       {:bcrypt_elixir, ">= 0.0.0", only: [:dev, :test]},
       {:argon2_elixir, ">= 0.0.0", only: [:dev, :test]},
-      {:pbkdf2_elixir, ">= 0.0.0", only: [:dev, :test]}
+      {:pbkdf2_elixir, ">= 0.0.0", only: [:dev, :test]},
+      {:postgrex, ">= 0.0.0", only: [:test]}
     ]
+  end
+
+  defp aliases do
+    [test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]]
   end
 end

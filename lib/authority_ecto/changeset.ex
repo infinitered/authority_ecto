@@ -10,49 +10,49 @@ defmodule Authority.Ecto.Changeset do
   @type field :: atom
 
   @doc """
-  Validate that a change has a confirmation and complies with [NIST's Digital
+  Validate that a password field has a confirmation and complies with [NIST's Digital
   Identity Guidelines](https://pages.nist.gov/800-63-3/).
 
   ## Examples
 
   Must be greater than 8 characters:
 
-      iex> changeset = User.changeset(%User{}, %{password: "a", password_confirmation: "a"})
+      iex> changeset = change(%User{}, %{password: "a", password_confirmation: "a"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"should be at least %{count} character(s)", [count: 8, validation: :length, min: 8]}
 
   Must have a confirmation field:
 
-      iex> changeset = User.changeset(%User{}, %{password: "pa$$word"})
+      iex> changeset = cast(%User{}, %{password: "pa$$word"}, [:password])
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password_confirmation]
       {"can't be blank", [validation: :required]}
 
   Must have a matching confirmation field:
 
-      iex> changeset = User.changeset(%User{}, %{password: "pa$$word", password_confirmation: "foobar"})
+      iex> changeset = cast(%User{}, %{password: "pa$$word", password_confirmation: "foobar"}, [:password, :password_confirmation])
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password_confirmation]
       {"does not match confirmation", [validation: :confirmation]}
 
   Must not have more than 2 repeating characters (e.g. "aaa" or "111"):
 
-      iex> changeset = User.changeset(%User{}, %{password: "passsword", password_confirmation: "passsword"})
+      iex> changeset = change(%User{}, %{password: "passsword", password_confirmation: "passsword"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} repeating characters", [validation: :nonrepetitive, max: 3]}
 
   Must not have more than 2 consecutive characters (e.g. "abc" or "123"):
 
-      iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
+      iex> changeset = change(%User{}, %{password: "testing123", password_confirmation: "testing123"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} consecutive characters", [validation: :nonconsecutive, max: 3]}
 
   Must not be one of the [1,000 most common passwords](https://github.com/danielmiessler/SecLists/blob/master/Passwords/10_million_password_list_top_1000.txt):
 
-      iex> changeset = User.changeset(%User{}, %{password: "spiderman", password_confirmation: "spiderman"})
+      iex> changeset = change(%User{}, %{password: "spiderman", password_confirmation: "spiderman"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"is too common", [validation: :exclusion]}
@@ -78,12 +78,12 @@ defmodule Authority.Ecto.Changeset do
 
   ## Examples
 
-      iex> changeset = User.changeset(%User{}, %{password: "aaa"})
+      iex> changeset = change(%User{}, %{password: "aaa"})
       ...> changeset = validate_nonrepetitive(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} repeating characters", [validation: :nonrepetitive, max: 3]}
 
-      iex> changeset = User.changeset(%User{}, %{password: "aaa"})
+      iex> changeset = change(%User{}, %{password: "aaa"})
       ...> changeset = validate_nonrepetitive(changeset, :password, max: 4)
       ...> changeset.errors[:password]
       nil
@@ -113,12 +113,12 @@ defmodule Authority.Ecto.Changeset do
 
   ## Examples
 
-      iex> changeset = User.changeset(%User{}, %{password: "abc"})
+      iex> changeset = change(%User{}, %{password: "abc"})
       ...> changeset = validate_nonconsecutive(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} consecutive characters", [validation: :nonconsecutive, max: 3]}
 
-      iex> changeset = User.changeset(%User{}, %{password: "abc"})
+      iex> changeset = change(%User{}, %{password: "abc"})
       ...> changeset = validate_nonconsecutive(changeset, :password, max: 4)
       ...> changeset.errors[:password]
       nil
@@ -181,6 +181,7 @@ defmodule Authority.Ecto.Changeset do
   The value of the `purpose` field should correspond to a key in the `config`
   list. The following formats are supported:
 
+      {n, :days}
       {n, :hours}
       {n, :minutes}
       {n, :seconds}
@@ -218,12 +219,12 @@ defmodule Authority.Ecto.Changeset do
 
   ## Examples
 
-      iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
+      iex> changeset = change(%User{}, %{password: "testing123", password_confirmation: "testing123"})
       ...> changeset = put_encrypted_password(changeset, :password, :encrypted_password)
       ...> Comeonin.Bcrypt.checkpw("testing123", get_change(changeset, :encrypted_password))
       true
 
-      iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
+      iex> changeset = change(%User{}, %{password: "testing123", password_confirmation: "testing123"})
       ...> changeset = put_encrypted_password(changeset, :password, :encrypted_password, :argon2)
       ...> Comeonin.Argon2.checkpw("testing123", get_change(changeset, :encrypted_password))
       true
@@ -244,6 +245,10 @@ defmodule Authority.Ecto.Changeset do
   end
 
   defp parse_timespec(nil), do: nil
+
+  defp parse_timespec({n, :days}) do
+    parse_timespec({n * 24, :hours})
+  end
 
   defp parse_timespec({n, :hours}) do
     parse_timespec({n * 60, :minutes})
