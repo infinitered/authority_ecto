@@ -10,40 +10,47 @@ defmodule Authority.Ecto.Changeset do
   @type field :: atom
 
   @doc """
-  Validate that a change passes the following security best practices:
-
-  * Must be greater than 8 characters
-  * Must have a confirmation field that matches the value
-  * Must not have more than 2 repeating characters (e.g. "aaa" or "111")
-  * Must not have more than 2 consecutive characters (e.g. "abc" or "123")
-  * Must not be one of the 1,000 most common passwords
+  Validate that a change has a confirmation and complies with [NIST's Digital
+  Identity Guidelines](https://pages.nist.gov/800-63-3/).
 
   ## Examples
+
+  Must be greater than 8 characters:
 
       iex> changeset = User.changeset(%User{}, %{password: "a", password_confirmation: "a"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"should be at least %{count} character(s)", [count: 8, validation: :length, min: 8]}
 
+  Must have a confirmation field:
+
       iex> changeset = User.changeset(%User{}, %{password: "pa$$word"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password_confirmation]
       {"can't be blank", [validation: :required]}
+
+  Must have a matching confirmation field:
 
       iex> changeset = User.changeset(%User{}, %{password: "pa$$word", password_confirmation: "foobar"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password_confirmation]
       {"does not match confirmation", [validation: :confirmation]}
 
+  Must not have more than 2 repeating characters (e.g. "aaa" or "111"):
+
       iex> changeset = User.changeset(%User{}, %{password: "passsword", password_confirmation: "passsword"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} repeating characters", [validation: :nonrepetitive, max: 3]}
 
+  Must not have more than 2 consecutive characters (e.g. "abc" or "123"):
+
       iex> changeset = User.changeset(%User{}, %{password: "testing123", password_confirmation: "testing123"})
       ...> changeset = validate_secure_password(changeset, :password)
       ...> changeset.errors[:password]
       {"contains more than %{max} consecutive characters", [validation: :nonconsecutive, max: 3]}
+
+  Must not be one of the [1,000 most common passwords](https://github.com/danielmiessler/SecLists/blob/master/Passwords/10_million_password_list_top_1000.txt):
 
       iex> changeset = User.changeset(%User{}, %{password: "spiderman", password_confirmation: "spiderman"})
       ...> changeset = validate_secure_password(changeset, :password)
