@@ -11,7 +11,7 @@ defmodule Authority.Ecto.Template do
   example.
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [...], # A list of Authority behaviours
           config: [...] # A keyword list of configuration options
       end
@@ -19,7 +19,7 @@ defmodule Authority.Ecto.Template do
   ### Global Configuration
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [...],
           config: [repo: MyApp.Repo]
       end
@@ -30,7 +30,7 @@ defmodule Authority.Ecto.Template do
   _Provides basic email/password (or username/password) authentication._
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [Authority.Authentication],
           config: [
             repo: MyApp.Repo,
@@ -55,7 +55,7 @@ defmodule Authority.Ecto.Template do
   attempts. Must be used with `Authority.Authentication`_.
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [
             Authority.Authentication,
             Authority.Locking
@@ -96,7 +96,7 @@ defmodule Authority.Ecto.Template do
   _Provides account recovery. Requires `Authority.Tokenization`._
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [
             Authority.Authentication,
             Authority.Recovery,
@@ -124,7 +124,7 @@ defmodule Authority.Ecto.Template do
   _Provides user registration and updating._
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [
             Authority.Registration
           ],
@@ -141,7 +141,7 @@ defmodule Authority.Ecto.Template do
   `Authority.Authentication`_.
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [
             Authority.Authentication,
             Authority.Tokenization
@@ -207,7 +207,7 @@ defmodule Authority.Ecto.Template do
   types.
 
       defmodule MyApp.Accounts do
-        use Authority.Template,
+        use Authority.Ecto.Template,
           behaviours: [Authority.Authentication],
           config: [repo: MyApp.Repo, user_schema: MyApp.Accounts.User]
           
@@ -222,9 +222,9 @@ defmodule Authority.Ecto.Template do
     
   ## Without Ecto
 
-  `Authority.Template` assumes you are using `Ecto`. However, nothing about
+  `Authority.Ecto.Template` assumes you are using `Ecto`. However, nothing about
   the behaviours require you to use `Ecto`. You can simply implement the
-  behaviours manually without using `Authority.Template`.
+  behaviours manually without using `Authority.Ecto.Template`.
 
   See each behaviour's documentation for details.
   """
