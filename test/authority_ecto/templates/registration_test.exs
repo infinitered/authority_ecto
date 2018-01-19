@@ -29,6 +29,8 @@ defmodule Authority.Ecto.Template.RegistrationTest do
   alias Authority.Ecto.Test.{User, Token}
   alias Ecto.Changeset
 
+  @password "s3cur$ty"
+
   describe ".change_user/0" do
     test "returns a changeset for a new user" do
       for module <- [Accounts, Auth] do
@@ -47,7 +49,7 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     end
 
     test "returns a changeset for a valid token" do
-      {:ok, token} = Auth.tokenize({"test@email.com", "password"})
+      {:ok, token} = Auth.tokenize({"test@email.com", @password})
       assert {:ok, %Ecto.Changeset{data: %User{id: id}}} = Auth.change_user(token)
       assert id != nil
     end
@@ -68,7 +70,7 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     end
 
     test "returns a changeset for a valid token with params" do
-      {:ok, token} = Auth.tokenize({"test@email.com", "password"})
+      {:ok, token} = Auth.tokenize({"test@email.com", @password})
 
       assert {:ok, %Ecto.Changeset{data: %User{id: id}, changes: %{email: "new@email.com"}}} =
                Auth.change_user(token, %{email: "new@email.com"})
@@ -87,15 +89,15 @@ defmodule Authority.Ecto.Template.RegistrationTest do
       assert {:error, %Changeset{}} = Accounts.create_user(%{email: "test@email.com"})
 
       assert {:error, %Changeset{}} =
-               Accounts.create_user(%{email: "test@email.com", password: "password"})
+               Accounts.create_user(%{email: "test@email.com", password: @password})
     end
 
     test "returns user when parameters are valid" do
       assert {:ok, %User{}} =
                Accounts.create_user(%{
                  email: "test@email.com",
-                 password: "password",
-                 password_confirmation: "password"
+                 password: @password,
+                 password_confirmation: @password
                })
     end
   end
@@ -118,8 +120,8 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     setup :create_user
 
     test "updates user password when given user", %{user: user} do
-      {:ok, _token} = Auth.tokenize({"test@email.com", "password"})
-      {:ok, _token} = Auth.tokenize({"test@email.com", "password"})
+      {:ok, _token} = Auth.tokenize({"test@email.com", @password})
+      {:ok, _token} = Auth.tokenize({"test@email.com", @password})
 
       assert {:ok, %User{}} =
                Accounts.update_user(user, %{
@@ -137,7 +139,7 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     end
 
     test "when used with tokenization, accepts tokens" do
-      {:ok, token} = Auth.tokenize({"test@email.com", "password"})
+      {:ok, token} = Auth.tokenize({"test@email.com", @password})
 
       assert {:ok, %User{}} =
                Auth.update_user(token, %{
@@ -180,14 +182,14 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     end
 
     test "when used with tokenization, accepts all-purpose tokens" do
-      {:ok, any} = Auth.tokenize({"test@email.com", "password"})
+      {:ok, any} = Auth.tokenize({"test@email.com", @password})
       assert {:ok, %User{}} = Auth.delete_user(any)
       assert Repo.aggregate(Token, :count, :id) == 0
     end
 
     test "when used with tokenization, rejects restricted-purpose tokens" do
       {:ok, recovery} = Auth.tokenize("test@email.com", :recovery)
-      {:ok, other} = Auth.tokenize({"test@email.com", "password"}, :other)
+      {:ok, other} = Auth.tokenize({"test@email.com", @password}, :other)
       assert {:error, :invalid_token_for_purpose} = Auth.delete_user(recovery)
       assert {:error, :invalid_token_for_purpose} = Auth.delete_user(other)
     end
@@ -197,8 +199,8 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     {:ok, user} =
       Accounts.create_user(%{
         email: "test@email.com",
-        password: "password",
-        password_confirmation: "password"
+        password: @password,
+        password_confirmation: @password
       })
 
     {:ok, user: user}
