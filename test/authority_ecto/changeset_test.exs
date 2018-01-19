@@ -22,7 +22,7 @@ defmodule Authority.Ecto.ChangesetTest do
   defp test_encrypted_password(name, mod) do
     changeset =
       %User{}
-      |> User.changeset(@valid_attrs)
+      |> change(@valid_attrs)
       |> Changeset.put_encrypted_password(:password, :encrypted_password, name)
 
     assert hash = get_change(changeset, :encrypted_password)
@@ -32,7 +32,7 @@ defmodule Authority.Ecto.ChangesetTest do
   test "put_encrypted_password/3 deletes virtual attributes" do
     changeset =
       %User{}
-      |> User.changeset(@valid_attrs)
+      |> change(@valid_attrs)
       |> Changeset.put_encrypted_password(:password, :encrypted_password)
 
     refute get_change(changeset, :password)
@@ -54,7 +54,7 @@ defmodule Authority.Ecto.ChangesetTest do
   test "put_token_expiration/3 sets the expires_at" do
     changeset =
       %Token{}
-      |> Token.changeset(%{purpose: "72_hours"})
+      |> change(%{purpose: "72_hours"})
       |> Changeset.put_token_expiration(:expires_at, :purpose, @expirations)
 
     actual =
@@ -73,7 +73,7 @@ defmodule Authority.Ecto.ChangesetTest do
   test "put_token_expiration/3 when no timespec is configured" do
     changeset =
       %Token{}
-      |> Token.changeset(%{purpose: "baloney"})
+      |> change(%{purpose: "baloney"})
       |> Changeset.put_token_expiration(:expires_at, :purpose, @expirations)
 
     refute get_change(changeset, :expires_at)
