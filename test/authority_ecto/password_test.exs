@@ -47,7 +47,7 @@ defmodule Authority.Ecto.PasswordTest do
         {"bbb", 3},
         {"cccc", 4},
         {"ddddd", 5},
-        {"111", 3},
+        {"111", 3}
       ],
       fn {value, size} ->
         assert Password.repetitive?(value, size), value
