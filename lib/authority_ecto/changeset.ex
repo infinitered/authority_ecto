@@ -7,10 +7,12 @@ defmodule Authority.Ecto.Changeset do
 
   @type field :: atom
 
-  @password_blacklist File.cwd!()
-                      |> Path.join("password_blacklist.txt")
-                      |> File.read!()
-                      |> String.split("\n")
+  @non_repeating_characters ~r/^(?:(.)(?!\1{2}))+$/
+
+  @password_blacklist "priv/password_blacklist.txt"
+                      |> File.stream!
+                      |> Stream.map(&String.trim/1)
+                      |> Enum.into([])
 
   @doc """
   Validate that a given password passes some security best practices.
@@ -19,6 +21,7 @@ defmodule Authority.Ecto.Changeset do
     changeset
     |> validate_length(field, min: 8)
     |> validate_confirmation(field, required: true)
+    |> validate_format(field, @non_repeating_characters)
     |> validate_exclusion(field, @password_blacklist, message: "is too common")
   end
 
