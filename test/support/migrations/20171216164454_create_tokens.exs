@@ -11,7 +11,7 @@ defmodule Authority.Test.Repo.Migrations.CreateTokens do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:tokens, [:user_id])
-    create index(:tokens, [:token])
+    create(index(:tokens, [:user_id]))
+    create(index(:tokens, [:token]))
   end
 end

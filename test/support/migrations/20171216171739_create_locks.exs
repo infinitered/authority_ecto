@@ -10,7 +10,7 @@ defmodule Authority.Test.Repo.Migrations.CreateLocks do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:locks, [:user_id])
-    create index(:locks, [:expires_at])
+    create(index(:locks, [:user_id]))
+    create(index(:locks, [:expires_at]))
   end
 end

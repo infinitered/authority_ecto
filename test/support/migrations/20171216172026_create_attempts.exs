@@ -7,7 +7,7 @@ defmodule Authority.Test.Repo.Migrations.CreateAttempts do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:attempts, [:user_id])
-    create index(:attempts, [:inserted_at])
+    create(index(:attempts, [:user_id]))
+    create(index(:attempts, [:inserted_at]))
   end
 end

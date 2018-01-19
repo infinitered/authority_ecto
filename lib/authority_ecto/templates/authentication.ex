@@ -3,6 +3,12 @@ defmodule Authority.Ecto.Template.Authentication do
 
   defmacro __using__(config) do
     quote location: :keep do
+      @hash_algorithms [
+        bcrypt: Comeonin.Bcrypt,
+        argon2: Comeonin.Argon2,
+        pbkdf2: Comeonin.Pbkdf2
+      ]
+
       @config unquote(config)
       @repo @config[:repo]
 
@@ -10,6 +16,13 @@ defmodule Authority.Ecto.Template.Authentication do
       @user_identity_field @config[:user_identity_field] || :email
       @user_password_field @config[:user_password_field] || :encrypted_password
       @user_password_algorithm @config[:user_password_algorithm] || :bcrypt
+
+      unless @user_password_algorithm in Keyword.keys(@hash_algorithms) do
+        raise ArgumentError, """
+        #{inspect(@user_password_algorithm)} not supported.
+        Supported algorithms: #{inspect(Keyword.keys(@hash_algorithms))}
+        """
+      end
 
       # Detect if tokenization is being used
       @token_schema @config[:token_schema]
@@ -66,18 +79,16 @@ defmodule Authority.Ecto.Template.Authentication do
         end
       end
 
-      if @user_password_algorithm == :bcrypt do
-        @doc false
-        @impl Authority.Authentication
-        def validate(
-              password,
-              %@user_schema{@user_password_field => encrypted_password},
-              _purpose
-            ) do
-          case Comeonin.Bcrypt.checkpw(password, encrypted_password) do
-            true -> :ok
-            false -> {:error, :invalid_password}
-          end
+      @doc false
+      @impl Authority.Authentication
+      def validate(
+            password,
+            %@user_schema{@user_password_field => encrypted_password},
+            _purpose
+          ) do
+        case @hash_algorithms[@user_password_algorithm].checkpw(password, encrypted_password) do
+          true -> :ok
+          false -> {:error, :invalid_password}
         end
       end
 
