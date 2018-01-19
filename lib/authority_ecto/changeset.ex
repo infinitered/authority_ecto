@@ -5,14 +5,9 @@ defmodule Authority.Ecto.Changeset do
 
   import Ecto.Changeset
 
+  alias Authority.Ecto.Password
+
   @type field :: atom
-
-  @non_repeating_characters ~r/^(?:(.)(?!\1{2}))+$/
-
-  @password_blacklist "priv/password_blacklist.txt"
-                      |> File.stream!
-                      |> Stream.map(&String.trim/1)
-                      |> Enum.into([])
 
   @doc """
   Validate that a given password passes some security best practices.
@@ -21,8 +16,33 @@ defmodule Authority.Ecto.Changeset do
     changeset
     |> validate_length(field, min: 8)
     |> validate_confirmation(field, required: true)
-    |> validate_format(field, @non_repeating_characters)
-    |> validate_exclusion(field, @password_blacklist, message: "is too common")
+    |> validate_nonrepetitive(field)
+    |> validate_nonconsecutive(field)
+    |> validate_exclusion(field, Password.blacklist(), message: "is too common")
+  end
+
+  def validate_nonrepetitive(changeset, field, opts \\ []) do
+    value = get_change(changeset, field)
+    max = opts[:max] || 3
+    msg = opts[:message] || "contains more than %{max} repeating characters"
+
+    if value && Password.repetitive?(value, max) do
+      add_error(changeset, field, msg, validation: :nonrepetitive, max: max)
+    else
+      changeset
+    end
+  end
+
+  def validate_nonconsecutive(changeset, field, opts \\ []) do
+    value = get_change(changeset, field)
+    max = opts[:max] || 3
+    msg = opts[:message] || "contains more than %{max} consecutive characters"
+
+    if value && Password.consecutive?(value, max) do
+      add_error(changeset, field, msg, validation: :nonconsecutive, max: max)
+    else
+      changeset
+    end
   end
 
   @doc """
