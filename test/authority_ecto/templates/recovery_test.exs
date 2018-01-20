@@ -57,7 +57,7 @@ defmodule Authority.Ecto.Template.RecoveryTest do
       assert {:ok, %User{}} = Accounts.authenticate({"valid@email.com", "new_password"})
 
       # Token cannot be used twice
-      assert {:error, :invalid_token} =
+      assert {:error, :expired_token} =
                Accounts.update_user(token, %{
                  password: "third_password",
                  password_confirmation: "third_password"

@@ -4,7 +4,7 @@ defmodule Authority.Ecto.Template.Registration do
   alias Authority.Template
 
   defmacro __using__(config) do
-    quote do
+    quote location: :keep do
       use Authority.Registration
 
       @config unquote(config)
@@ -75,13 +75,14 @@ defmodule Authority.Ecto.Template.Registration do
   # When Registration is used with Authentication and Tokenization, we should accept
   # tokens as the first argument to update_user/2 and delete_user/1.
   defp inject_functions([Authority.Authentication, Authority.Tokenization]) do
-    quote do
+    quote location: :keep do
       import Ecto.Query
       alias Ecto.Multi
 
       @token_schema @config[:token_schema] || raise(":token_schema is required")
       @token_user_assoc @config[:token_user_assoc] || :user
       @token_field @config[:token] || :token
+      @token_expiration_field @config[:token_expiration_field] || :expires_at
       @user_password_field @config[:user_password_field] || :encrypted_password
       @user_identity_field @config[:user_identity_field] || :email
 
@@ -130,18 +131,10 @@ defmodule Authority.Ecto.Template.Registration do
         defp do_update_user(user_or_credential, user, params) do
           changeset = @user_schema.changeset(user, params)
 
-          # Remove all other tokens if the password changed, so that the user
-          # will need to log in again.
-          token_query =
-            @config[:token_schema]
-            |> where([t], field(t, ^:"#{@token_user_assoc}_id") == ^changeset.data.id)
-            |> where([t], t.id != ^user_or_credential.id)
-            |> or_where([t], t.purpose == ^:recovery)
-
           result =
             Multi.new()
             |> Multi.update(:user, changeset)
-            |> Multi.delete_all(:tokens, token_query)
+            |> invalidate_tokens(user_or_credential, changeset)
             |> @repo.transaction()
 
           case result do
@@ -150,6 +143,24 @@ defmodule Authority.Ecto.Template.Registration do
 
             {:error, _operation, reason, _changes} ->
               {:error, reason}
+          end
+        end
+
+        # Invalidate all other tokens if the password changed, so that the user
+        # will need to log in again.
+        defp invalidate_tokens(multi, user_or_credential, changeset) do
+          if get_change(changeset, @user_password_field) do
+            token_query =
+              @token_schema
+              |> where([t], field(t, ^:"#{@token_user_assoc}_id") == ^changeset.data.id)
+              |> where([t], t.id != ^user_or_credential.id or t.purpose == ^:recovery)
+
+            # Expire all the previous tokens belonging to this user
+            updates = [set: [{@token_expiration_field, DateTime.utc_now()}]]
+
+            Multi.update_all(multi, :tokens, token_query, updates)
+          else
+            multi
           end
         end
       end
@@ -220,7 +231,7 @@ defmodule Authority.Ecto.Template.Registration do
   # When Registration is not used with Authentication and Tokenization, we should
   # inject very simple functions that assume the first argument is a user.
   defp inject_functions(_) do
-    quote do
+    quote location: :keep do
       unless Module.defines?(__MODULE__, {:change_user, 0}) do
         @doc """
         Returns a changeset for a given `#{inspect(@user_schema)}`.
