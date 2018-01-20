@@ -149,7 +149,7 @@ defmodule Authority.Ecto.Template.Registration do
         # Invalidate all other tokens if the password changed, so that the user
         # will need to log in again.
         defp invalidate_tokens(multi, user_or_credential, changeset) do
-          if get_change(changeset, @user_password_field) do
+          if Ecto.Changeset.get_change(changeset, @user_password_field) do
             token_query =
               @token_schema
               |> where([t], field(t, ^:"#{@token_user_assoc}_id") == ^changeset.data.id)
