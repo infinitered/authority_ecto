@@ -120,8 +120,8 @@ defmodule Authority.Ecto.Template.RegistrationTest do
     setup :create_user
 
     test "updates user password when given user", %{user: user} do
-      {:ok, _token} = Auth.tokenize({"test@email.com", @password})
-      {:ok, _token} = Auth.tokenize({"test@email.com", @password})
+      {:ok, token1} = Auth.tokenize({"test@email.com", @password})
+      {:ok, token2} = Auth.tokenize({"test@email.com", @password})
 
       assert {:ok, %User{}} =
                Accounts.update_user(user, %{
@@ -135,7 +135,8 @@ defmodule Authority.Ecto.Template.RegistrationTest do
                  password_confirmation: "third_password"
                })
 
-      assert Repo.aggregate(Token, :count, :id) == 0
+      assert_expired(token1)
+      assert_expired(token2)
     end
 
     test "when used with tokenization, accepts tokens" do
@@ -147,7 +148,6 @@ defmodule Authority.Ecto.Template.RegistrationTest do
                  password_confirmation: "new_password"
                })
 
-      assert Repo.aggregate(Token, :count, :id) == 1
       {:ok, recovery} = Auth.tokenize({"test@email.com", "new_password"}, :recovery)
 
       assert {:ok, %User{}} =
@@ -162,7 +162,6 @@ defmodule Authority.Ecto.Template.RegistrationTest do
                  password_confirmation: "third_password"
                })
 
-      assert Repo.aggregate(Token, :count, :id) == 0
       {:ok, other} = Auth.tokenize({"test@email.com", "new_password"}, :other)
 
       assert {:error, :invalid_token_for_purpose} =
@@ -170,6 +169,22 @@ defmodule Authority.Ecto.Template.RegistrationTest do
                  password: "fourth_password",
                  password_confirmation: "fourth_password"
                })
+    end
+
+    test "when used with tokenization, only invalidates the current users tokens" do
+      Factory.insert!(:user, email: "test2@email.com")
+
+      {:ok, token1} = Auth.tokenize({"test@email.com", @password}, :recovery)
+      {:ok, token2} = Auth.tokenize({"test2@email.com", "password"}, :recovery)
+
+      assert {:ok, %User{}} =
+               Auth.update_user(token1, %{
+                 password: "new_password",
+                 password_confirmation: "new_password"
+               })
+
+      assert_expired(token1)
+      refute_expired(token2)
     end
   end
 
@@ -204,5 +219,15 @@ defmodule Authority.Ecto.Template.RegistrationTest do
       })
 
     {:ok, user: user}
+  end
+
+  defp assert_expired(token) do
+    token = Repo.get(Token, token.id)
+    assert DateTime.compare(DateTime.utc_now(), token.expires_at) == :gt
+  end
+
+  defp refute_expired(token) do
+    token = Repo.get(Token, token.id)
+    assert DateTime.compare(DateTime.utc_now(), token.expires_at) == :lt
   end
 end
