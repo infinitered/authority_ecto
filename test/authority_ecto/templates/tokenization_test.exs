@@ -31,6 +31,10 @@ defmodule Authority.Ecto.Template.TokenizationTest do
       assert {:ok, %Token{}} = Accounts.tokenize({"valid@email.com", "password"})
     end
 
+    test "returns token for user", %{user: user} do
+      assert {:ok, %Token{}} = Accounts.tokenize(user)
+    end
+
     test "tokenizes email address for recovery only" do
       assert {:ok, %Token{}} = Accounts.tokenize("valid@email.com", :recovery)
       assert {:error, :invalid_email} = Accounts.tokenize("invalid@email.com", :recovery)

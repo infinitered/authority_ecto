@@ -89,6 +89,10 @@ defmodule Authority.Ecto.Template.Tokenization do
         end
       end
 
+      def tokenize(%@user_schema{} = user, purpose) do
+        do_tokenize(user, purpose)
+      end
+
       def tokenize(identifier, :recovery) do
         with {:ok, user} <- identify(identifier) do
           do_tokenize(user, :recovery)
