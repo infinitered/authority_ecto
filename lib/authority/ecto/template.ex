@@ -1,8 +1,8 @@
 defmodule Authority.Ecto.Template do
   @moduledoc """
-  `Authority` provides _implementations_, not just _behaviours_. Many apps will
-  be able to use a template instead of implementing `Authority` behaviours
-  manually.
+  Automatically implements `Authority` behaviours into modules of your
+  choice, minimizing the amount of code that you have to write. All callbacks
+  remain overridable, however.
 
   ## Definition
 
@@ -16,15 +16,10 @@ defmodule Authority.Ecto.Template do
           config: [...] # A keyword list of configuration options
       end
 
-  ### Global Configuration
+  You could also define multiple modules, each of which only implement _some_
+  `Authority` behaviours, depending on your preferences.
 
-      defmodule MyApp.Accounts do
-        use Authority.Ecto.Template,
-          behaviours: [...],
-          config: [repo: MyApp.Repo]
-      end
-
-  - `:repo`: (required) The `Ecto.Repo` to use for database lookups.
+  ## Behaviours
 
   ### `Authority.Authentication`
   _Provides basic email/password (or username/password) authentication._
@@ -167,6 +162,99 @@ defmodule Authority.Ecto.Template do
   - `:token_purpose_field`: (optional) the field on `:token_schema` which
   stores the purpose of the token. (Default: `:purpose`)
 
+  ## Sample Schemas
+  You should use the following `Ecto.Schema`s as guides for how to design your
+  authentication-related schemas.
+
+  ### User
+
+      defmodule MyApp.Accounts.User do
+        use Ecto.Schema
+
+        import Ecto.Changeset
+        import Authority.Ecto.Changeset
+
+        schema "users" do
+          field :email, :string
+          field :encrypted_password, :string
+
+          field :password, :string, virtual: true
+          field :password_confirmation, :string, virtual: true
+
+          timestamps(type: :utc_datetime)
+        end
+
+        def changeset(struct, params \\ %{}) do
+          struct
+          |> cast(params, [:email, :password, :password_confirmation])
+          |> validate_required([:email, :password])
+          |> validate_secure_password(:password)
+          |> put_encrypted_password(:password, :encrypted_password)
+        end
+      end
+
+  ### Token
+  An additional dependency on [ex_numerator](https://hex.pm/ex_numerator) can be helpful.
+
+      defmodule MyApp.Accounts.Token do
+        use Ecto.Schema
+
+        import Ecto.Changeset
+        import Authority.Ecto.Changeset
+
+        defmodule Purpose do
+          use Exnumerator, values: [:any, :recovery]
+        end
+
+        defmodule HMAC do
+          use Authority.Ecto.HMAC, secret: "authority"
+        end
+
+        schema "tokens" do
+          belongs_to :user, MyApp.Accounts.User
+
+          field :token, HMAC
+          field :expires_at, :utc_datetime
+          field :purpose, Purpose
+
+          timestamps(type: :utc_datetime)
+        end
+
+        def changeset(struct, params \\ %{}) do
+          struct
+          |> cast(params, [:expires_at, :purpose])
+          |> put_token(:token)
+          |> put_token_expiration(:expires_at, :purpose, recovery: {24, :hours}, any: {14, :days})
+        end
+      end
+
+  ### Lock
+  An additional dependency on [ex_numerator](https://hex.pm/ex_numerator) can be helpful.      
+
+      defmodule Authority.Ecto.Test.Lock do
+        use Ecto.Schema
+
+        import Ecto.Changeset
+
+        defmodule Reason do
+          use Exnumerator, values: [:too_many_attempts]
+        end
+
+        schema "locks" do
+          belongs_to :user, MyApp.Accounts.User
+
+          field :reason, Reason
+          field :expires_at, :utc_datetime
+
+          timestamps(type: :utc_datetime)
+        end
+
+        def changeset(struct, params \\ %{}) do
+          struct
+          |> cast(params, [:reason, :expires_at])
+        end
+      end
+
   ## Using Your Module
 
   Once you've configured your module, you can call `Authority` behaviour
@@ -200,7 +288,7 @@ defmodule Authority.Ecto.Template do
       # Send a password reset email
       Accounts.recover("my@email.com")
     
-  ## Overriding
+  ## Overriding Callbacks
 
   You can override any callback function to add support for new data types.
   For example, you can override `identify` to provide support for custom
@@ -219,14 +307,6 @@ defmodule Authority.Ecto.Template do
         # provided by the template.
         def identify(other), do: super(other)
       end
-    
-  ## Without Ecto
-
-  `Authority.Ecto.Template` assumes you are using `Ecto`. However, nothing about
-  the behaviours require you to use `Ecto`. You can simply implement the
-  behaviours manually without using `Authority.Ecto.Template`.
-
-  See each behaviour's documentation for details.
   """
 
   alias Authority.{

@@ -4,10 +4,13 @@ defmodule Authority.Ecto.MixProject do
   def project do
     [
       app: :authority_ecto,
+      description: "Implements Authority behaviours using Ecto for persistence",
       version: "0.1.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      package: package(),
+      docs: docs(),
       deps: deps(),
       aliases: aliases()
     ]
@@ -22,6 +25,34 @@ defmodule Authority.Ecto.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_env), do: ["lib"]
+
+  defp package do
+    [
+      maintainers: ["Daniel Berkompas"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/infinitered/authority_ecto",
+        "Authority (GitHub)" => "https://github.com/infinitered/authority",
+        "Authority (Hex)" => "https://hex.pm/authority"
+      },
+      source_url: "https://github.com/infinitered/authority_ecto"
+    ]
+  end
+
+  defp docs do
+    [
+      main: Authority.Ecto,
+      groups_for_modules: [
+        Implementation: [
+          Authority.Ecto.Template
+        ],
+        Changesets: [
+          Authority.Ecto.Changeset,
+          Authority.Ecto.HMAC
+        ]
+      ]
+    ]
+  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
