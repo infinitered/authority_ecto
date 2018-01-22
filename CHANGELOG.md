@@ -2,6 +2,13 @@
 
 ## [Unreleased](https://github.com/infinitered/authority_ecto/tree/HEAD)
 
+[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.0...HEAD)
+
+**Merged pull requests:**
+
+- Require confirmation only if password changed [\#19](https://github.com/infinitered/authority_ecto/pull/19) ([danielberkompas](https://github.com/danielberkompas))
+
+## [v0.1.0](https://github.com/infinitered/authority_ecto/tree/v0.1.0) (2018-01-22)
 **Implemented enhancements:**
 
 - put\_token\_expiration/4 [\#5](https://github.com/infinitered/authority_ecto/issues/5)
