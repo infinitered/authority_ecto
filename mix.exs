@@ -8,6 +8,7 @@ defmodule Authority.Ecto.MixProject do
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      docs: docs(),
       deps: deps(),
       aliases: aliases()
     ]
@@ -22,6 +23,21 @@ defmodule Authority.Ecto.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_env), do: ["lib"]
+
+  defp docs do
+    [
+      main: Authority.Ecto,
+      groups_for_modules: [
+        Implementation: [
+          Authority.Ecto.Template
+        ],
+        Changesets: [
+          Authority.Ecto.Changeset,
+          Authority.Ecto.HMAC
+        ]
+      ]
+    ]
+  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do

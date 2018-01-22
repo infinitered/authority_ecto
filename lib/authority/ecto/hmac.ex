@@ -2,9 +2,10 @@ defmodule Authority.Ecto.HMAC do
   @moduledoc """
   An `Ecto.Type` to hash secrets (like tokens) using HMAC to reduce the
   chance of leaking, even if your database is compromised.
-
   If reversible encryption is desired, see the
   [Cloak](https://github.com/danielberkompas/cloak) library instead.
+
+  Relies on `:crypto.hmac/3`, using the hash algorithm `:sha256`.
 
   ## Configuration
 
@@ -71,9 +72,9 @@ defmodule Authority.Ecto.HMAC do
       Repo.get!(Token, token.id)
       # => %Token{token: "4F5410A9D48AD80826A027F98DC7B9E1D20E5C42D3E7F341549954C28B5ABA89"}
 
-  However, if you preserved it in memory, you can still query using the
-  original value. Ecto will transparently hash the value before using it
-  to query the database.
+  However, if you preserved the original value on the client-side, (such as
+  in a session cookie) you can still query using it. Ecto will transparently
+  hash the value before using it to query the database.
 
       Token
       |> where(token: "original-value")
@@ -107,8 +108,9 @@ defmodule Authority.Ecto.HMAC do
   end
 
   @doc """
-  Hashes a given string using the given secret, and returns the value
-  as a `Base.encode16/1` string. Relies on `:crypto.hmac/3`.
+  Hashes a given string using the given secret, and returns the value as a
+  `Base.encode16/1` string. Relies on `:crypto.hmac/3` with hash algorithm
+  `:sha256`.
 
   ## Examples
 

@@ -1,4 +1,6 @@
 defmodule Authority.Ecto.Password do
+  @moduledoc false
+
   @consecutive_series [
     "abcdefghijklmnopqrstuvwxyz",
     "01234567890"
