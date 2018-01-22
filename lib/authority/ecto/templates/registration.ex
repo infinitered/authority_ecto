@@ -1,7 +1,7 @@
 defmodule Authority.Ecto.Template.Registration do
   @moduledoc false
 
-  alias Authority.Template
+  alias Authority.Ecto.Template
 
   defmacro __using__(config) do
     quote location: :keep do

@@ -57,7 +57,7 @@ defmodule Authority.Ecto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:authority, ">= 0.0.0"},
+      {:authority, "~> 0.3"},
       {:ecto, ">= 0.0.0"},
       {:comeonin, ">= 0.0.0"},
       {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
