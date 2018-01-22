@@ -62,7 +62,7 @@ defmodule Authority.Ecto.Changeset do
   def validate_secure_password(changeset, field) do
     changeset
     |> validate_length(field, min: 8)
-    |> validate_confirmation(field, required: true)
+    |> validate_confirmation(field, required: get_change(changeset, field) != nil)
     |> validate_nonrepetitive(field)
     |> validate_nonconsecutive(field)
     |> validate_exclusion(field, Password.blacklist(), message: "is too common")
