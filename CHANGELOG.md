@@ -2,7 +2,18 @@
 
 ## [Unreleased](https://github.com/infinitered/authority_ecto/tree/HEAD)
 
-[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.0...HEAD)
+[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.1...HEAD)
+
+**Closed issues:**
+
+- Typespecs aren't quite right [\#20](https://github.com/infinitered/authority_ecto/issues/20)
+
+**Merged pull requests:**
+
+- Fix typespecs on `change\_user/0` - `change\_user/2` [\#21](https://github.com/infinitered/authority_ecto/pull/21) ([danielberkompas](https://github.com/danielberkompas))
+
+## [v0.1.1](https://github.com/infinitered/authority_ecto/tree/v0.1.1) (2018-01-22)
+[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.0...v0.1.1)
 
 **Merged pull requests:**
 
