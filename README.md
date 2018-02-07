@@ -15,7 +15,7 @@ Add `authority_ecto` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:authority_ecto, "~> 0.1.0"}
+    {:authority_ecto, "~> 0.1.2"}
   ]
 end
 ```

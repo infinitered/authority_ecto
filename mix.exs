@@ -5,7 +5,7 @@ defmodule Authority.Ecto.MixProject do
     [
       app: :authority_ecto,
       description: "Implements Authority behaviours using Ecto for persistence",
-      version: "0.1.1",
+      version: "0.1.2",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
