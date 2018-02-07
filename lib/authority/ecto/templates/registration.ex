@@ -202,16 +202,12 @@ defmodule Authority.Ecto.Template.Registration do
             # => {:error, :invalid_token}
         """
         @impl Authority.Registration
-        @spec change_user :: {:ok, Ecto.Changeset.t()} | auth_failure
+        @spec change_user :: {:ok, Ecto.Changeset.t()}
         @spec change_user(@user_schema.t() | @token_schema.t()) ::
                 {:ok, Ecto.Changeset.t()} | auth_failure
         @spec change_user(@user_schema.t() | @token_schema.t(), map) ::
                 {:ok, Ecto.Changeset.t()} | auth_failure
-        def change_user(user_or_token \\ nil, params \\ %{})
-
-        def change_user(nil, params) do
-          {:ok, @user_schema.changeset(%@user_schema{}, params)}
-        end
+        def change_user(user_or_token \\ %@user_schema{}, params \\ %{})
 
         def change_user(%@user_schema{} = user, params) do
           {:ok, @user_schema.changeset(user, params)}

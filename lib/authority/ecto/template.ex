@@ -174,6 +174,8 @@ defmodule Authority.Ecto.Template do
         import Ecto.Changeset
         import Authority.Ecto.Changeset
 
+        @type t :: %__MODULE__{}
+
         schema "users" do
           field :email, :string
           field :encrypted_password, :string
@@ -201,6 +203,8 @@ defmodule Authority.Ecto.Template do
 
         import Ecto.Changeset
         import Authority.Ecto.Changeset
+
+        @type t :: %__MODULE__{}
 
         defmodule Purpose do
           use Exnumerator, values: [:any, :recovery]
@@ -235,6 +239,8 @@ defmodule Authority.Ecto.Template do
         use Ecto.Schema
 
         import Ecto.Changeset
+
+        @type t :: %__MODULE__{}
 
         defmodule Reason do
           use Exnumerator, values: [:too_many_attempts]
