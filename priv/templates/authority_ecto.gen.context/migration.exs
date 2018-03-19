@@ -18,5 +18,6 @@ defmodule <%= inspect migration.module %> do
     end
 
     create(index(:tokens, [:user_id]))
+    create(unique_index(:tokens, [:token]))
   end
 end

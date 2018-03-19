@@ -19,5 +19,6 @@ defmodule <%= inspect token_schema.module %> do
     |> cast(attrs, [:purpose])
     |> put_token(:token)
     |> put_token_expiration(:expires_at, :purpose, @expiration)
+    |> unique_constraint(:token)
   end
 end
