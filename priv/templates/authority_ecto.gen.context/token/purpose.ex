@@ -1,4 +1,4 @@
-defmodule <%= inspect token_purpose.module %> do
+defmodule <%= inspect context.token_purpose.module %> do
   @behaviour Ecto.Type
 
   @values [:any, :recovery]

@@ -66,7 +66,7 @@ defmodule Authority.Ecto.MixProject do
       {:argon2_elixir, ">= 0.0.0", only: [:dev, :test]},
       {:pbkdf2_elixir, ">= 0.0.0", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:test]},
-      {:phoenix, ">= 0.0.0", only: [:test]}
+      {:phoenix, ">= 0.0.0", only: [:dev, :test]}
     ]
   end
 

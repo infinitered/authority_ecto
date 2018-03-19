@@ -1,4 +1,4 @@
-defmodule <%= inspect lock_reason.module %> do
+defmodule <%= inspect context.lock_reason.module %> do
   @behaviour Ecto.Type
 
   @values [:too_many_attempts]
