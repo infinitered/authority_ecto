@@ -64,11 +64,15 @@ if Code.ensure_compiled?(Mix.Phoenix) do
     end
 
     defp build_submodule(schema, module, file) do
-      dirname = Path.basename(schema.file, ".ex")
+      file =
+        schema.file
+        |> Path.dirname()
+        |> Path.join(Path.basename(schema.file, ".ex"))
+        |> Path.join(file)
 
       %{
         module: Module.concat(schema.module, module),
-        file: Path.expand("../#{dirname}/#{file}", schema.file),
+        file: file,
         context_app: schema.context_app
       }
     end
