@@ -8,9 +8,9 @@ if Code.ensure_compiled?(Mix.Phoenix) do
     @context_template "priv/templates/authority_ecto.gen.context"
 
     @doc """
-    Run a command
+    Generate a new context with Authority.Ecto.Template preconfigured.
     """
-    @shortdoc "Run a command"
+    @shortdoc "Generate a context with Authority"
     def run([context_name]) do
       user_schema = build_schema(context_name, :User, :users)
       token_schema = build_schema(context_name, :Token, :tokens)
@@ -67,6 +67,7 @@ if Code.ensure_compiled?(Mix.Phoenix) do
     defp build_schema(context_name, schema_name, table_name) do
       context_name
       |> Module.concat(schema_name)
+      |> inspect()
       |> Schema.new(table_name, [], [])
     end
 
