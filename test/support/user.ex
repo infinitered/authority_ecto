@@ -22,5 +22,6 @@ defmodule Authority.Ecto.Test.User do
     |> validate_required([:email, :password])
     |> validate_secure_password(:password)
     |> put_encrypted_password(:password, :encrypted_password)
+    |> unique_constraint(:email)
   end
 end

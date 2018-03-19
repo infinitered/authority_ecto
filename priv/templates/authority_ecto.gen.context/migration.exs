@@ -8,6 +8,8 @@ defmodule <%= inspect migration.module %> do
       timestamps()
     end
 
+    create(unique_index(:users, [:email]))
+
     create table(:<%= token_schema.table %>) do
       add(:token, :string)
       add(:purpose, :string)
