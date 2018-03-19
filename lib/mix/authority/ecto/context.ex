@@ -42,20 +42,6 @@ if Code.ensure_compiled?(Mix.Phoenix) do
       }
     end
 
-    def get_files(%__MODULE__{} = context) do
-      [
-        {:eex, "migration.exs", context.migration.file},
-        {:eex, "context.ex", context.file},
-        {:eex, "user.ex", context.user.file},
-        {:eex, "token.ex", context.token.file},
-        {:eex, "token/hmac.ex", context.token_hmac.file},
-        {:eex, "token/purpose.ex", context.token_purpose.file},
-        {:eex, "lock.ex", context.lock.file},
-        {:eex, "lock/reason.ex", context.lock_reason.file},
-        {:eex, "attempt.ex", context.attempt.file}
-      ]
-    end
-
     defp build_schema(context_name, schema_name, table_name) do
       context_name
       |> Module.concat(schema_name)
