@@ -8,18 +8,18 @@ defmodule <%= inspect migration.module %> do
       timestamps()
     end
 
-    create(unique_index(:users, [:email]))
+    create(unique_index(:<%= user_schema.table %>, [:email]))
 
     create table(:<%= token_schema.table %>) do
+      add(:user_id, references(:<%= user_schema.table %>, on_delete: :nothing), null: false)
       add(:token, :string, null: false)
       add(:purpose, :string, null: false)
       add(:expires_at, :naive_datetime, null: false)
-      add(:user_id, references(:<%= user_schema.table %>, on_delete: :nothing), null: false)
 
       timestamps()
     end
 
-    create(index(:tokens, [:user_id]))
-    create(unique_index(:tokens, [:token]))
+    create(index(:<%= token_schema.table %>, [:user_id]))
+    create(unique_index(:<%= token_schema.table %>, [:token]))
   end
 end
