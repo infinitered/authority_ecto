@@ -28,6 +28,18 @@ defmodule Authority.Ecto.Gen.ContextTest do
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
       end
 
+      assert_file "lib/authority_ecto/accounts/lock.ex", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Lock"
+      end
+
+      assert_file "lib/authority_ecto/accounts/lock/reason.ex", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
+      end
+
+      assert_file "lib/authority_ecto/accounts/attempt.ex", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Attempt"
+      end
+
       assert [path] = Path.wildcard("priv/repo/migrations/*_authority_ecto.exs")
       assert_file path, fn file ->
         assert file =~ "defmodule AuthorityEcto.Repo.Migrations.AuthorityEcto"

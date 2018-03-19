@@ -4,12 +4,15 @@ defmodule <%= inspect context.module %> do
       Authority.Authentication,
       Authority.Tokenization,
       Authority.Recovery,
-      Authority.Registration
+      Authority.Registration,
+      Authority.Locking
     ],
     config: [
       repo: <%= inspect user_schema.repo %>,
       user_schema: <%= inspect user_schema.module %>,
       token_schema: <%= inspect token_schema.module %>,
+      lock_schema: <%= inspect lock_schema.module %>,
+      lock_schema_attempt: <%= inspect attempt_schema.module %>,
       recovery_callback: {__MODULE__, :send_forgot_password_email}
     ]
 
