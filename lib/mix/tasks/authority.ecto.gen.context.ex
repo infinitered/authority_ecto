@@ -14,6 +14,7 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
     ]
 
     @default_options [
+      authentication: true,
       tokenization: true,
       recovery: true,
       registration: true,
@@ -26,13 +27,13 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
     @shortdoc "Generate a context with Authority"
     def run([name | options]) do
       context = Context.new(name)
-      config = parse_options(context, options)
+      {files, binding} = parse_options(context, options)
 
       Mix.Phoenix.copy_from(
         [:authority_ecto],
         @context_template,
-        [context: context, behaviours: config.behaviours, config: config.config],
-        config.files
+        binding,
+        files
       )
 
       Mix.shell().info("""
@@ -49,18 +50,26 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
     end
 
     defp parse_options(context, args) do
-      options = OptionParser.parse(args, switches: @switches)
-      initial = %{files: [], behaviours: [], config: []}
+      {options, _, _} = OptionParser.parse(args, switches: @switches)
+      options = Keyword.merge(@default_options, options)
 
-      @default_options
-      |> Keyword.merge(options)
-      |> Enum.reduce(initial, fn
-        {key, true}, acc ->
-          merge(acc, build(context, key))
+      %{files: files, behaviours: behaviours, config: config} =
+        Enum.reduce(options, %{files: [], behaviours: [], config: []}, fn
+          {key, true}, acc ->
+            merge(acc, build(context, key))
 
-        _, acc ->
-          acc
-      end)
+          _, acc ->
+            acc
+        end)
+
+      binding = [
+        context: context,
+        options: options,
+        behaviours: behaviours,
+        config: config
+      ]
+
+      {files, binding}
     end
 
     defp merge(a, b) do
@@ -84,11 +93,12 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
     end
 
     defp build(_context, :registration) do
-      %{behaviours: [Authority.Registration]}
+      %{files: [], behaviours: [Authority.Registration], config: []}
     end
 
     defp build(context, :recovery) do
       %{
+        files: [],
         behaviours: [Authority.Recovery],
         config: [
           recovery_callback: {context.module, :send_forgot_password_email}
