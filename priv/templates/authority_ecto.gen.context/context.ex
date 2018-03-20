@@ -1,14 +1,12 @@
 defmodule <%= inspect context.module %> do
   use Authority.Ecto.Template,
-<%= [behaviours: behaviours, config: config]
-    |> inspect()
-    |> Code.format_string!()
-    |> IO.iodata_to_binary()
-    |> String.split("\n")
-    |> Enum.map(fn line -> "  " <> line <> "\n" end)
-    |> List.delete_at(0)
-    |> List.delete_at(-1) %>
-  <%= if options[:recovery] do %>
+    behaviours: [
+      <%= Enum.map_join(behaviours, ",\n      ", &inspect/1) %>
+    ],
+    config: [
+      <%= Enum.map_join(config, ",\n      ", fn {k, v} -> "#{k}: #{inspect(v)}" end) %>
+    ]
+  <%= if Authority.Recovery in behaviours do %>
   @doc """
   Send a password recovery email to the user.
   """

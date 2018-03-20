@@ -25,14 +25,14 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
     Generate a new context with Authority.Ecto.Template preconfigured.
     """
     @shortdoc "Generate a context with Authority"
-    def run([name | options]) do
+    def run([name | args]) do
       context = Context.new(name)
-      {files, binding} = parse_options(context, options)
+      {files, behaviours, config} = build_features(context, args)
 
       Mix.Phoenix.copy_from(
         [:authority_ecto],
         @context_template,
-        binding,
+        [context: context, behaviours: behaviours, config: config],
         files
       )
 
@@ -49,88 +49,65 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
       """)
     end
 
-    defp parse_options(context, args) do
+    defp build_features(context, args) do
       {options, _, _} = OptionParser.parse(args, switches: @switches)
-      options = Keyword.merge(@default_options, options)
 
-      %{files: files, behaviours: behaviours, config: config} =
-        Enum.reduce(options, %{files: [], behaviours: [], config: []}, fn
-          {key, true}, acc ->
-            merge(acc, build(context, key))
-
-          _, acc ->
-            acc
-        end)
-
-      binding = [
-        context: context,
-        options: options,
-        behaviours: behaviours,
-        config: config
-      ]
-
-      {files, binding}
+      @default_options
+      |> Keyword.merge(options)
+      |> Enum.reduce({[], [], []}, &build_feature(&2, context, &1))
     end
 
-    defp merge(a, b) do
-      %{
-        files: a.files ++ b.files,
-        behaviours: a.behaviours ++ b.behaviours,
-        config: a.config ++ b.config
-      }
+    defp build_feature(spec, context, {:authentication, true}) do
+      spec
+      |> put_file("migration.exs", context.migration.file)
+      |> put_file("context.ex", context.file)
+      |> put_file("user.ex", context.user.file)
+      |> put_behaviour(Authority.Authentication)
+      |> put_config(:repo, context.user.repo)
+      |> put_config(:user_schema, context.user.module)
     end
 
-    defp build(context, :authentication) do
-      %{
-        files: [
-          {:eex, "migration.exs", context.migration.file},
-          {:eex, "context.ex", context.file},
-          {:eex, "user.ex", context.user.file}
-        ],
-        behaviours: [Authority.Authentication],
-        config: [repo: context.user.repo, user_schema: context.user.module]
-      }
+    defp build_feature(spec, _context, {:registration, true}) do
+      put_behaviour(spec, Authority.Registration)
     end
 
-    defp build(_context, :registration) do
-      %{files: [], behaviours: [Authority.Registration], config: []}
+    defp build_feature(spec, context, {:recovery, true}) do
+      spec
+      |> put_behaviour(Authority.Recovery)
+      |> put_config(:recovery_callback, {context.module, :send_forgot_password_email})
     end
 
-    defp build(context, :recovery) do
-      %{
-        files: [],
-        behaviours: [Authority.Recovery],
-        config: [
-          recovery_callback: {context.module, :send_forgot_password_email}
-        ]
-      }
+    defp build_feature(spec, context, {:tokenization, true}) do
+      spec
+      |> put_file("token.ex", context.token.file)
+      |> put_file("token/hmac.ex", context.token_hmac.file)
+      |> put_file("token/purpose.ex", context.token_purpose.file)
+      |> put_behaviour(Authority.Tokenization)
+      |> put_config(:token_schema, context.token.module)
     end
 
-    defp build(context, :tokenization) do
-      %{
-        files: [
-          {:eex, "token.ex", context.token.file},
-          {:eex, "token/hmac.ex", context.token_hmac.file},
-          {:eex, "token/purpose.ex", context.token_purpose.file}
-        ],
-        behaviours: [Authority.Tokenization],
-        config: [token_schema: context.token.module]
-      }
+    defp build_feature(spec, context, {:locking, true}) do
+      spec
+      |> put_file("lock.ex", context.lock.file)
+      |> put_file("lock/reason.ex", context.lock_reason.file)
+      |> put_file("attempt.ex", context.attempt.file)
+      |> put_behaviour(Authority.Locking)
+      |> put_config(:lock_schema, context.lock.module)
+      |> put_config(:lock_schema_attempt, context.attempt.module)
     end
 
-    defp build(context, :locking) do
-      %{
-        files: [
-          {:eex, "lock.ex", context.lock.file},
-          {:eex, "lock/reason.ex", context.lock_reason.file},
-          {:eex, "attempt.ex", context.attempt.file}
-        ],
-        behaviours: [Authority.Locking],
-        config: [
-          lock_schema: context.lock.module,
-          lock_schema_attempt: context.attempt.module
-        ]
-      }
+    defp build_feature(spec, _context, _), do: spec
+
+    defp put_file({files, behaviours, config}, src, dest) do
+      {[{:eex, src, dest} | files], behaviours, config}
+    end
+
+    defp put_behaviour({files, behaviours, config}, behaviour) do
+      {files, [behaviour | behaviours], config}
+    end
+
+    defp put_config({files, behaviours, config}, key, value) do
+      {files, behaviours, [{key, value} | config]}
     end
   end
 end
