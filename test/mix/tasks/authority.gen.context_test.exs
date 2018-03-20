@@ -2,7 +2,7 @@ defmodule Authority.Ecto.Gen.ContextTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
 
-  alias Mix.Tasks.Authority.Ecto.Gen.Context, as: Generator
+  alias Mix.Tasks.Authority.Gen.Context, as: Generator
 
   test "generates files for a context" do
     within_project(fn ->

@@ -1,10 +1,10 @@
 if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
-  defmodule Mix.Tasks.Authority.Ecto.Gen.Context do
+  defmodule Mix.Tasks.Authority.Gen.Context do
     use Mix.Task
 
     alias Mix.Authority.Ecto.Context
 
-    @context_template "priv/templates/authority_ecto.gen.context"
+    @context_template "priv/templates/authority.gen.context"
 
     @switches [
       tokenization: :boolean,
