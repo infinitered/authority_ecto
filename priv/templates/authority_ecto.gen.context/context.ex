@@ -6,7 +6,7 @@ defmodule <%= inspect context.module %> do
     config: [
       <%= Enum.map_join(config, ",\n      ", fn {k, v} -> "#{k}: #{inspect(v)}" end) %>
     ]
-  <%= if Authority.Recovery in behaviours do %>
+<%= if Authority.Recovery in behaviours do %>
   @doc """
   Send a password recovery email to the user.
   """

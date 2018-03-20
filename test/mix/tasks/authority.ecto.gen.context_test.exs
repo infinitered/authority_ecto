@@ -18,7 +18,7 @@ defmodule Authority.Ecto.Gen.ContextTest do
         assert file =~ "user_schema"
         assert file =~ "token_schema"
         assert file =~ "lock_schema"
-        assert file =~ "lock_schema_attempt"
+        assert file =~ "lock_attempt_schema"
         assert file =~ "recovery_callback"
         assert file =~ "send_forgot_password_email"
       end
@@ -70,7 +70,7 @@ defmodule Authority.Ecto.Gen.ContextTest do
       assert_file "lib/authority_ecto/accounts/accounts.ex", fn file ->
         refute file =~ "Authority.Locking"
         refute file =~ "lock_schema"
-        refute file =~ "lock_schema_attempt"
+        refute file =~ "lock_attempt_schema"
       end
     end)
   end

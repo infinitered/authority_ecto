@@ -93,7 +93,7 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
       |> put_file("attempt.ex", context.attempt.file)
       |> put_behaviour(Authority.Locking)
       |> put_config(:lock_schema, context.lock.module)
-      |> put_config(:lock_schema_attempt, context.attempt.module)
+      |> put_config(:lock_attempt_schema, context.attempt.module)
     end
 
     defp build_feature(spec, _context, _), do: spec
