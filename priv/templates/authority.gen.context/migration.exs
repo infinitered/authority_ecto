@@ -14,7 +14,7 @@ defmodule <%= inspect context.migration.module %> do
       add(:user_id, references(:<%= context.user.table %>, on_delete: :nothing), null: false)
       add(:token, :string, null: false)
       add(:purpose, :string, null: false)
-      add(:expires_at, :naive_datetime, null: false)
+      add(:expires_at, :utc_datetime, null: false)
 
       timestamps()
     end
@@ -25,7 +25,7 @@ defmodule <%= inspect context.migration.module %> do
     create table(:<%= context.lock.table %>) do
       add(:user_id, references(:<%= context.user.table %>, on_delete: :nothing), null: false)
       add(:reason, :string, null: false)
-      add(:expires_at, :naive_datetime, null: false)
+      add(:expires_at, :utc_datetime, null: false)
       timestamps()
     end
 

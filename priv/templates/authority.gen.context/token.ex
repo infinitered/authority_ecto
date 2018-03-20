@@ -7,7 +7,7 @@ defmodule <%= inspect context.token.module %> do
 
   schema <%= inspect context.token.table %> do
     field(:token, <%= inspect context.token_hmac.module %>)
-    field(:expires_at, :naive_datetime)
+    field(:expires_at, :utc_datetime)
     field(:purpose, <%= inspect context.token_purpose.module %>)
     belongs_to(:user, <%= inspect context.user.module %>)
     timestamps()
