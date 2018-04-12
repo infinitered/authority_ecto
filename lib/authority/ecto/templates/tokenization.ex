@@ -1,10 +1,16 @@
 defmodule Authority.Ecto.Template.Tokenization do
   @moduledoc false
 
+  alias Authority.Ecto.Template
+
   defmacro __using__(config) do
     quote location: :keep do
       @config unquote(config)
       @repo @config[:repo]
+
+      # Inject different versions of do_tokenize/1 based on
+      # what other behaviours you are using
+      @before_compile unquote(__MODULE__)
 
       @token_schema @config[:token_schema] || raise(":token_schema is required")
       @user_identity_field @config[:user_identity_field] || :email
@@ -103,12 +109,6 @@ defmodule Authority.Ecto.Template.Tokenization do
         {:error, :invalid_credential_for_purpose}
       end
 
-      defp do_tokenize(user, purpose) do
-        %@token_schema{@token_user_assoc => user}
-        |> @token_schema.changeset(%{@token_purpose_field => purpose})
-        |> @repo.insert()
-      end
-
       @doc """
       Gets a `#{inspect(@token_schema)}` by its string `#{inspect(@token_field)}` field.
 
@@ -136,6 +136,35 @@ defmodule Authority.Ecto.Template.Tokenization do
       end
 
       defoverridable Authority.Tokenization
+    end
+  end
+
+  defmacro __before_compile__(env) do
+    if Template.implements?(env.module, Authority.Locking) do
+      quote location: :keep do
+        defp do_tokenize(user, purpose) do
+          changeset =
+            %@token_schema{@token_user_assoc => user}
+            |> @token_schema.changeset(%{@token_purpose_field => purpose})
+
+          case get_lock(user) do
+            {:ok, lock} ->
+              {:error, lock}
+
+            _other ->
+              unlock(user)
+              @repo.insert(changeset)
+          end
+        end
+      end
+    else
+      quote location: :keep do
+        defp do_tokenize(user, purpose) do
+          %@token_schema{@token_user_assoc => user}
+          |> @token_schema.changeset(%{@token_purpose_field => purpose})
+          |> @repo.insert()
+        end
+      end
     end
   end
 end

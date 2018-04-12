@@ -367,5 +367,9 @@ defmodule Authority.Ecto.Template do
     Module.defines?(module, {:tokenize, 2})
   end
 
+  def implements?(module, Authority.Locking) do
+    Module.defines?(module, {:lock, 2})
+  end
+
   def implements?(_module, _behaviour), do: false
 end

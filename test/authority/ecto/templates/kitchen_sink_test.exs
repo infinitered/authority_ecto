@@ -28,10 +28,10 @@ defmodule Authority.Ecto.KitchenSinkTest do
   describe ".tokenize/2" do
     test "locks account after too many failed attempts" do
       for _ <- 1..5 do
-        Accounts.tokenize({"valid@email.com", "invalid"})
+        Accounts.authenticate({"valid@email.com", "invalid"})
       end
 
-      assert {:error, %Lock{}} = Accounts.tokenize({"valid@email.com", "valid"})
+      assert {:error, %Lock{}} = Accounts.tokenize({"valid@email.com", "password"})
     end
   end
 end
