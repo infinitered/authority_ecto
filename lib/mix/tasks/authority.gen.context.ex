@@ -44,7 +44,7 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
 
       Add a secret to your configuration for storing tokens:
 
-          config #{inspect(context.token_hmac.context_app)}, #{inspect(context.token_hmac.module)},
+          config #{inspect(context.otp_app)}, #{inspect(context.token_hmac.module)},
             secret_key: "some secure value"
       """)
     end
@@ -63,7 +63,7 @@ if Code.ensure_compiled?(Mix.Authority.Ecto.Context) do
       |> put_file("context.ex", context.file)
       |> put_file("user.ex", context.user.file)
       |> put_behaviour(Authority.Authentication)
-      |> put_config(:repo, context.user.repo)
+      |> put_config(:repo, context.repo)
       |> put_config(:user_schema, context.user.module)
     end
 

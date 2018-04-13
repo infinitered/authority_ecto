@@ -1,85 +1,101 @@
-if Code.ensure_compiled?(Mix.Phoenix) do
-  defmodule Mix.Authority.Ecto.Context do
-    alias Mix.Phoenix.Context
-    alias Mix.Phoenix.Schema
+defmodule Mix.Authority.Ecto.Context do
+  defstruct [
+    :otp_app,
+    :module,
+    :repo,
+    :file,
+    :user,
+    :token,
+    :token_hmac,
+    :token_purpose,
+    :lock,
+    :lock_reason,
+    :attempt,
+    :migration
+  ]
 
-    defstruct [
-      :module,
-      :file,
-      :user,
-      :token,
-      :token_hmac,
-      :token_purpose,
-      :lock,
-      :lock_reason,
-      :attempt,
-      :migration
-    ]
+  def new(name) do
+    otp_app = Mix.Project.config() |> Keyword.fetch!(:app)
+    namespace = predict_namespace(otp_app)
 
-    def new(name) do
-      user = build_schema(name, :User, "users")
-      token = build_schema(name, :Token, "tokens")
-      lock = build_schema(name, :Lock, "locks")
-      attempt = build_schema(name, :Attempt, "attempts")
+    path = Path.join(["lib", to_string(otp_app), Macro.underscore(name)])
 
-      token_hmac = build_submodule(token, :HMAC, "hmac.ex")
-      token_purpose = build_submodule(token, :Purpose, "purpose.ex")
-      lock_reason = build_submodule(lock, :Reason, "reason.ex")
+    module = Module.concat(namespace, name)
+    repo = Module.concat(namespace, :Repo)
 
-      context = Context.new(name, user, [])
+    file = Path.join([path, Macro.underscore(name) <> ".ex"])
+    migration = namespace |> Module.concat(:Repo) |> build_migration()
 
-      %__MODULE__{
-        module: context.module,
-        file: context.file,
-        migration: build_migration(user),
-        user: user,
-        token: token,
-        lock: lock,
-        attempt: attempt,
-        token_hmac: token_hmac,
-        token_purpose: token_purpose,
-        lock_reason: lock_reason
-      }
-    end
+    user = build_schema({module, path}, {:User, "user", "users"})
+    token = build_schema({module, path}, {:Token, "token", "tokens"})
+    lock = build_schema({module, path}, {:Lock, "lock", "locks"})
+    attempt = build_schema({module, path}, {:Attempt, "attempt", "attempts"})
 
-    defp build_schema(context_name, schema_name, table_name) do
-      context_name
-      |> Module.concat(schema_name)
-      |> inspect()
-      |> Schema.new(table_name, [], [])
-    end
+    token_hmac = build_submodule(token, {:HMAC, "hmac"})
+    token_purpose = build_submodule(token, {:Purpose, "purpose"})
+    lock_reason = build_submodule(lock, {:Reason, "reason"})
 
-    defp build_submodule(schema, module, file) do
-      file =
-        schema.file
-        |> Path.dirname()
-        |> Path.join(Path.basename(schema.file, ".ex"))
-        |> Path.join(file)
-
-      %{
-        module: Module.concat(schema.module, module),
-        file: file,
-        context_app: schema.context_app
-      }
-    end
-
-    defp build_migration(schema) do
-      file = "priv/repo/migrations/#{timestamp()}_authority_ecto.exs"
-
-      module =
-        schema.repo
-        |> Module.concat(:Migrations)
-        |> Module.concat(:AuthorityEcto)
-
-      %{file: file, module: module}
-    end
-
-    defp timestamp do
-      {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
-      "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
-    end
-
-    defp pad(i) when i < 10, do: <<?0, ?0 + i>>
-    defp pad(i), do: to_string(i)
+    %__MODULE__{
+      otp_app: otp_app,
+      module: module,
+      repo: repo,
+      file: file,
+      user: user,
+      token: token,
+      lock: lock,
+      attempt: attempt,
+      migration: migration,
+      token_hmac: token_hmac,
+      token_purpose: token_purpose,
+      lock_reason: lock_reason
+    }
   end
+
+  defp predict_namespace(otp_app) do
+    case Application.get_env(otp_app, :namespace, otp_app) do
+      ^otp_app -> otp_app |> to_string() |> Macro.camelize()
+      mod -> mod |> inspect()
+    end
+  end
+
+  defp build_schema({module, path}, {name, singular, plural}) do
+    %{
+      file: Path.join(path, singular <> ".ex"),
+      module: Module.concat(module, name),
+      singular: singular,
+      plural: plural,
+      table: plural
+    }
+  end
+
+  defp build_submodule(schema, {name, singular}) do
+    module = Module.concat(schema.module, name)
+
+    file =
+      schema.file
+      |> Path.dirname()
+      |> Path.join(Path.basename(schema.file, ".ex"))
+      |> Path.join(singular <> ".ex")
+
+    %{module: module, file: file}
+  end
+
+  defp build_migration(repo) do
+    file = "priv/repo/migrations/#{timestamp()}_authority_ecto.exs"
+
+    module =
+      repo
+      |> Module.concat(:Migrations)
+      |> Module.concat(:AuthorityEcto)
+
+    %{module: module, file: file}
+  end
+
+  defp timestamp do
+    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
+    "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
+  end
+
+  defp pad(i) when i < 10, do: <<?0, ?0 + i>>
+  defp pad(i), do: to_string(i)
 end
