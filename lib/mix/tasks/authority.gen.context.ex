@@ -28,7 +28,11 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     context = Context.new(name)
     {files, behaviours, config} = build_features(context, args)
 
-    binding = [context: context, behaviours: behaviours, config: config]
+    binding = [
+      context: context,
+      config: config,
+      behaviours: Enum.sort_by(behaviours, &behaviour_order/1)
+    ]
 
     for {source, target} <- files do
       Mix.Generator.create_file(target, render(source, binding))
@@ -113,4 +117,10 @@ defmodule Mix.Tasks.Authority.Gen.Context do
   defp put_config({files, behaviours, config}, key, value) do
     {files, behaviours, [{key, value} | config]}
   end
+
+  defp behaviour_order(Authority.Authentication), do: 0
+  defp behaviour_order(Authority.Tokenization), do: 1
+  defp behaviour_order(Authority.Recovery), do: 2
+  defp behaviour_order(Authority.Registration), do: 3
+  defp behaviour_order(Authority.Locking), do: 4
 end
