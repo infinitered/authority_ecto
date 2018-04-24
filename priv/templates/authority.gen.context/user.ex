@@ -1,27 +1,21 @@
-defmodule Authority.Ecto.Test.User do
-  @moduledoc false
-
+defmodule <%= inspect context.user.module %> do
   use Ecto.Schema
-
   import Ecto.Changeset
   import Authority.Ecto.Changeset
 
-  schema "users" do
+  schema <%= inspect context.user.table %> do
     field(:email, :string)
     field(:encrypted_password, :string)
-
     field(:password, :string, virtual: true)
-    field(:password_confirmation, :string, virtual: true)
-
-    timestamps(type: :utc_datetime)
+    timestamps()
   end
 
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:email, :password, :password_confirmation])
+  @doc false
+  def changeset(<%= context.user.singular %>, attrs) do
+    <%= context.user.singular %>
+    |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
     |> validate_secure_password(:password)
     |> put_encrypted_password(:password, :encrypted_password)
-    |> unique_constraint(:email)
   end
 end

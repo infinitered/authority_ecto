@@ -99,7 +99,7 @@ defmodule Authority.Ecto.Template.Locking do
 
       defp create_attempt(user) do
         %@lock_attempt_schema{@lock_user_assoc => user}
-        |> @lock_attempt_schema.changeset()
+        |> @lock_attempt_schema.changeset(%{})
         |> @repo.insert()
       end
 
