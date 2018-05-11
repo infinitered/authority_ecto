@@ -8,8 +8,11 @@ function add_dep {
   perl -pi -e "s|{:phoenix,(.*)},$|{:phoenix,\1},\n      $1,|" mix.exs
 }
 
+# Make sure phoenix is installed
+yes | mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez
+
 # Create a new temp directory
-tmp=$(mktemp -d -t authority_ecto)
+tmp=$(mktemp -dt authority_ecto.XXX)
 app="$tmp/dummy"
 dep=$(pwd)
 
