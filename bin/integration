@@ -29,8 +29,8 @@ add_dep '{:bcrypt_elixir, ">= 0.0.0"}'
 # Install deps and compile
 mix do deps.get, deps.compile
 
-# Generate a new context
-MIX_ENV=test mix authority.gen.context Accounts
+# Generate a new context, forwarding all arguments
+MIX_ENV=test mix authority.gen.context Accounts "$@"
 
 # Drop the test database in case it already exists
 MIX_ENV=test mix ecto.drop
