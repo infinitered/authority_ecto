@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#
+# Generate a new Phoenix app
+
+set -e
+
+function add_dep {
+  perl -pi -e "s|{:phoenix,(.*)},$|{:phoenix,\1},\n      $1,|" mix.exs
+}
+
+# Make sure phoenix is installed
+yes | mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez
+
+# Create a new temp directory
+tmp=$(mktemp -dt authority_ecto.XXX)
+app="$tmp/dummy"
+dep=$(pwd)
+
+# Remove it when this script exits
+trap "{ rm -rf \"$tmp\"; }" EXIT
+
+# Create a new phoenix app, but don't install deps
+yes n | mix phx.new "$app" --no-brunch
+
+# Enter the directory for our app
+cd "$app"
+
+# Add some dependencies to mix.exs
+add_dep "{:authority_ecto, path: \"$dep\"}"
+add_dep '{:bcrypt_elixir, ">= 0.0.0"}'
+
+# Install deps and compile
+mix do deps.get, deps.compile
+
+# Generate a new context, forwarding all arguments
+MIX_ENV=test mix authority.gen.context Accounts "$@"
+
+# Drop the test database in case it already exists
+MIX_ENV=test mix ecto.drop
+
+# Configure the secret for the HMAC
+echo 'config :dummy, Dummy.Accounts.Token.HMAC, secret_key: "askldfjasklfsdafjaslk"' >> config/test.exs
+
+# Run tests!
+mix test

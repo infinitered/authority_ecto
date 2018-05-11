@@ -69,7 +69,9 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     spec
     |> put_file("migration.exs", context.migration.file)
     |> put_file("context.ex", context.file)
+    |> put_file("context_test.exs", context.test_file)
     |> put_file("user.ex", context.user.file)
+    |> put_file("user_test.exs", context.user.test_file)
     |> put_behaviour(Authority.Authentication)
     |> put_config(:repo, context.repo)
     |> put_config(:user_schema, context.user.module)
@@ -88,8 +90,10 @@ defmodule Mix.Tasks.Authority.Gen.Context do
   defp build_feature(spec, context, {:tokenization, true}) do
     spec
     |> put_file("token.ex", context.token.file)
+    |> put_file("token_test.exs", context.token.test_file)
     |> put_file("token/hmac.ex", context.token_hmac.file)
     |> put_file("token/purpose.ex", context.token_purpose.file)
+    |> put_file("token/purpose_test.exs", context.token_purpose.test_file)
     |> put_behaviour(Authority.Tokenization)
     |> put_config(:token_schema, context.token.module)
   end
@@ -97,8 +101,11 @@ defmodule Mix.Tasks.Authority.Gen.Context do
   defp build_feature(spec, context, {:locking, true}) do
     spec
     |> put_file("lock.ex", context.lock.file)
+    |> put_file("lock_test.exs", context.lock.test_file)
     |> put_file("lock/reason.ex", context.lock_reason.file)
+    |> put_file("lock/reason_test.exs", context.lock_reason.test_file)
     |> put_file("attempt.ex", context.attempt.file)
+    |> put_file("attempt_test.exs", context.attempt.test_file)
     |> put_behaviour(Authority.Locking)
     |> put_config(:lock_schema, context.lock.module)
     |> put_config(:lock_attempt_schema, context.attempt.module)
