@@ -50,19 +50,16 @@ defmodule Mix.Authority.Ecto.ContextTest do
     test "token_hmac", %{context: %{token_hmac: token_hmac}} do
       assert token_hmac.module == AuthorityEcto.Accounts.Token.HMAC
       assert token_hmac.file == "lib/authority_ecto/accounts/token/hmac.ex"
-      assert token_hmac.test_file == "test/authority_ecto/accounts/token/hmac_test.exs"
     end
 
     test "token_purpose", %{context: %{token_purpose: token_purpose}} do
       assert token_purpose.module == AuthorityEcto.Accounts.Token.Purpose
       assert token_purpose.file == "lib/authority_ecto/accounts/token/purpose.ex"
-      assert token_purpose.test_file == "test/authority_ecto/accounts/token/purpose_test.exs"
     end
 
     test "lock_reason", %{context: %{lock_reason: lock_reason}} do
       assert lock_reason.module == AuthorityEcto.Accounts.Lock.Reason
       assert lock_reason.file == "lib/authority_ecto/accounts/lock/reason.ex"
-      assert lock_reason.test_file == "test/authority_ecto/accounts/lock/reason_test.exs"
     end
   end
 end

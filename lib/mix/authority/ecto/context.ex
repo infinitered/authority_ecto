@@ -86,13 +86,7 @@ defmodule Mix.Authority.Ecto.Context do
       |> Path.join(Path.basename(schema.file, ".ex"))
       |> Path.join(singular <> ".ex")
 
-    test_file =
-      schema.test_file
-      |> Path.dirname()
-      |> Path.join(Path.basename(schema.file, ".ex"))
-      |> Path.join(singular <> "_test.exs")
-
-    %{module: module, file: file, test_file: test_file}
+    %{module: module, file: file}
   end
 
   defp build_migration(repo) do
