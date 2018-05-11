@@ -80,6 +80,21 @@ defmodule Authority.Ecto.HMAC do
       |> where(token: "original-value")
       |> Repo.one()
       # => %Token{token: "4F5410A9D48AD80826A027F98DC7B9E1D20E5C42D3E7F341549954C28B5ABA89"}
+
+  ## Gotchas
+
+  `Authority.Ecto.HMAC` casts values to a string before hashing, so if an HMAC
+  field may be set to `nil`, be aware that it will be cast to an empty string,
+  and then hashed. This *may* create a vulnerability in your application
+  if the HMAC field is used for authentication purposes, as it will match a
+  blank string. Ensure that when authenticating you handle the case where the
+  passed in raw value is `nil` or `""`, as passing those to a query as-is can
+  result in a situation where a user could login with a blank password.
+
+      user = Repo.insert! User{email: "email@example.com", password: nil}
+      {:ok, hashed} = MyApp.HMAC.dump(nil)
+      user.hashed_password == hashed
+      #=> true
   """
 
   @doc false
