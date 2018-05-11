@@ -10,3 +10,4 @@ MIX_ENV=test mix format --check-formatted || { echo "Some files were not formatt
 MIX_ENV=test mix compile --force --warnings-as-errors || { echo "Please fix all compiler warnings!"; exit 1; }
 MIX_ENV=test mix docs || { echo "Docs did not compile!"; exit 1; }
 mix test || { echo "Tests failed!"; exit 1; }
+bin/integration || { echo "Integration failed!"; exit 1; }
