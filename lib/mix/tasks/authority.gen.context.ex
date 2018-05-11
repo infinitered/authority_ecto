@@ -93,7 +93,6 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     |> put_file("token_test.exs", context.token.test_file)
     |> put_file("token/hmac.ex", context.token_hmac.file)
     |> put_file("token/purpose.ex", context.token_purpose.file)
-    |> put_file("token/purpose_test.exs", context.token_purpose.test_file)
     |> put_behaviour(Authority.Tokenization)
     |> put_config(:token_schema, context.token.module)
   end
@@ -103,7 +102,6 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     |> put_file("lock.ex", context.lock.file)
     |> put_file("lock_test.exs", context.lock.test_file)
     |> put_file("lock/reason.ex", context.lock_reason.file)
-    |> put_file("lock/reason_test.exs", context.lock_reason.test_file)
     |> put_file("attempt.ex", context.attempt.file)
     |> put_file("attempt_test.exs", context.attempt.test_file)
     |> put_behaviour(Authority.Locking)
