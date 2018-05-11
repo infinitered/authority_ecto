@@ -4,6 +4,7 @@ defmodule Mix.Authority.Ecto.Context do
     :module,
     :repo,
     :file,
+    :test_file,
     :user,
     :token,
     :token_hmac,
@@ -11,7 +12,8 @@ defmodule Mix.Authority.Ecto.Context do
     :lock,
     :lock_reason,
     :attempt,
-    :migration
+    :migration,
+    :data_case
   ]
 
   def new(name) do
@@ -19,17 +21,21 @@ defmodule Mix.Authority.Ecto.Context do
     namespace = predict_namespace(otp_app)
 
     path = Path.join(["lib", to_string(otp_app), Macro.underscore(name)])
+    test_path = Path.join(["test", to_string(otp_app), Macro.underscore(name)])
 
     module = Module.concat(namespace, name)
     repo = Module.concat(namespace, :Repo)
+    data_case = Module.concat(namespace, :DataCase)
 
     file = Path.join([path, Macro.underscore(name) <> ".ex"])
+    test_file = Path.join([test_path, Macro.underscore(name) <> "_test.exs"])
     migration = namespace |> Module.concat(:Repo) |> build_migration()
 
-    user = build_schema({module, path}, {:User, "user", "users"})
-    token = build_schema({module, path}, {:Token, "token", "tokens"})
-    lock = build_schema({module, path}, {:Lock, "lock", "locks"})
-    attempt = build_schema({module, path}, {:Attempt, "attempt", "attempts"})
+    paths = {module, path, test_path}
+    user = build_schema(paths, {:User, "user", "users"})
+    token = build_schema(paths, {:Token, "token", "tokens"})
+    lock = build_schema(paths, {:Lock, "lock", "locks"})
+    attempt = build_schema(paths, {:Attempt, "attempt", "attempts"})
 
     token_hmac = build_submodule(token, {:HMAC, "hmac"})
     token_purpose = build_submodule(token, {:Purpose, "purpose"})
@@ -40,6 +46,7 @@ defmodule Mix.Authority.Ecto.Context do
       module: module,
       repo: repo,
       file: file,
+      test_file: test_file,
       user: user,
       token: token,
       lock: lock,
@@ -47,7 +54,8 @@ defmodule Mix.Authority.Ecto.Context do
       migration: migration,
       token_hmac: token_hmac,
       token_purpose: token_purpose,
-      lock_reason: lock_reason
+      lock_reason: lock_reason,
+      data_case: data_case
     }
   end
 
@@ -58,9 +66,10 @@ defmodule Mix.Authority.Ecto.Context do
     end
   end
 
-  defp build_schema({module, path}, {name, singular, plural}) do
+  defp build_schema({module, path, test_path}, {name, singular, plural}) do
     %{
       file: Path.join(path, singular <> ".ex"),
+      test_file: Path.join(test_path, singular <> "_test.exs"),
       module: Module.concat(module, name),
       singular: singular,
       plural: plural,
@@ -77,7 +86,13 @@ defmodule Mix.Authority.Ecto.Context do
       |> Path.join(Path.basename(schema.file, ".ex"))
       |> Path.join(singular <> ".ex")
 
-    %{module: module, file: file}
+    test_file =
+      schema.test_file
+      |> Path.dirname()
+      |> Path.join(Path.basename(schema.file, ".ex"))
+      |> Path.join(singular <> "_test.exs")
+
+    %{module: module, file: file, test_file: test_file}
   end
 
   defp build_migration(repo) do
