@@ -38,8 +38,8 @@ defmodule Authority.Ecto.Gen.ContextTest do
 
       assert_file("lib/authority_ecto/accounts/token.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token"
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMAC"
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
+        assert file =~ "  defmodule HMAC"
+        assert file =~ "  defmodule Purpose"
       end)
 
       assert_file("test/authority_ecto/accounts/token_test.exs", fn file ->
@@ -48,7 +48,7 @@ defmodule Authority.Ecto.Gen.ContextTest do
 
       assert_file("lib/authority_ecto/accounts/lock.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock"
-        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
+        assert file =~ "  defmodule Reason"
       end)
 
       assert_file("test/authority_ecto/accounts/lock_test.exs", fn file ->
