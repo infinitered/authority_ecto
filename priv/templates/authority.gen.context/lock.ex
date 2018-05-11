@@ -13,5 +13,6 @@ defmodule <%= inspect context.lock.module %> do
   def changeset(<%= context.lock.singular %>, attrs) do
     <%= context.lock.singular %>
     |> cast(attrs, [:reason, :expires_at])
+    |> validate_required(:reason)
   end
 end

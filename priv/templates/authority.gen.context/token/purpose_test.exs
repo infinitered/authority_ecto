@@ -3,6 +3,8 @@ defmodule <%= inspect context.token_purpose.module %>Test do
   alias <%= inspect context.token_purpose.module %>
 
   test "cast/1" do
+    assert Purpose.cast(nil) == {:ok, nil}
+
     assert Purpose.cast(:any) == {:ok, :any}
     assert Purpose.cast("any") == {:ok, :any}
 
@@ -13,6 +15,8 @@ defmodule <%= inspect context.token_purpose.module %>Test do
   end
 
   test "dump/1" do
+    assert Purpose.dump(nil) == {:ok, nil}
+
     assert Purpose.dump(:any) == {:ok, "any"}
     assert Purpose.dump("any") == {:ok, "any"}
 

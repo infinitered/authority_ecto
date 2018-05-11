@@ -17,6 +17,7 @@ defmodule <%= inspect context.token.module %> do
   def changeset(<%= context.token.singular %>, attrs) do
     <%= context.token.singular %>
     |> cast(attrs, [:purpose])
+    |> validate_required(:purpose)
     |> put_token(:token)
     |> put_token_expiration(:expires_at, :purpose, @expiration)
     |> unique_constraint(:token)

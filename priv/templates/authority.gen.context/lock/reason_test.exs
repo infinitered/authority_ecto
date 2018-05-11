@@ -3,12 +3,14 @@ defmodule <%= inspect context.lock_reason.module %>Test do
   alias <%= inspect context.lock_reason.module %>
 
   test "cast/1" do
+    assert Reason.cast(nil) == {:ok, nil}
     assert Reason.cast(:too_many_attempts) == {:ok, :too_many_attempts}
     assert Reason.cast("too_many_attempts") == {:ok, :too_many_attempts}
     assert Reason.dump("garbage") == :error
   end
 
   test "dump/1" do
+    assert Reason.dump(nil) == {:ok, nil}
     assert Reason.dump(:too_many_attempts) == {:ok, "too_many_attempts"}
     assert Reason.dump("too_many_attempts") == {:ok, "too_many_attempts"}
     assert Reason.dump("garbage") == :error

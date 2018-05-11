@@ -11,6 +11,11 @@ defmodule <%= inspect context.token.module %>Test do
       assert Ecto.Changeset.get_change(changeset, :expires_at)
     end
 
+    test "missing purpose" do
+      changeset = Token.changeset(%Token{}, %{})
+      assert errors_on(changeset) == %{purpose: ["can't be blank"]}
+    end
+
     test "invalid purpose" do
       changeset = Token.changeset(%Token{}, %{purpose: "garbage"})
       assert errors_on(changeset) == %{purpose: ["is invalid"]}

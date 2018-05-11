@@ -5,6 +5,9 @@ defmodule <%= inspect context.token_purpose.module %> do
 
   def type, do: :string
 
+  def cast(nil), do: {:ok, nil}
+  def dump(nil), do: {:ok, nil}
+
   for value <- @values, atom = value, string = Atom.to_string(value) do
     def cast(unquote(atom)), do: {:ok, unquote(atom)}
     def cast(unquote(string)), do: {:ok, unquote(atom)}
