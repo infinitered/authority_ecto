@@ -52,10 +52,6 @@ defmodule Authority.Ecto.Gen.ContextTest do
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
       end)
 
-      assert_file("test/authority_ecto/accounts/token/purpose_test.exs", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.PurposeTest"
-      end)
-
       assert_file("lib/authority_ecto/accounts/lock.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock"
       end)
@@ -66,10 +62,6 @@ defmodule Authority.Ecto.Gen.ContextTest do
 
       assert_file("lib/authority_ecto/accounts/lock/reason.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
-      end)
-
-      assert_file("test/authority_ecto/accounts/lock/reason_test.exs", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.ReasonTest"
       end)
 
       assert_file("lib/authority_ecto/accounts/attempt.ex", fn file ->
