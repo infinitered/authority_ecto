@@ -48,10 +48,6 @@ defmodule Authority.Ecto.Gen.ContextTest do
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMAC"
       end)
 
-      assert_file("test/authority_ecto/accounts/token/hmac_test.exs", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMACTest"
-      end)
-
       assert_file("lib/authority_ecto/accounts/token/purpose.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
       end)
