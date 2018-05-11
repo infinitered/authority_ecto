@@ -38,30 +38,21 @@ defmodule Authority.Ecto.Gen.ContextTest do
 
       assert_file("lib/authority_ecto/accounts/token.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token"
+        assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMAC"
+        assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
       end)
 
       assert_file("test/authority_ecto/accounts/token_test.exs", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.TokenTest"
       end)
 
-      assert_file("lib/authority_ecto/accounts/token/hmac.ex", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMAC"
-      end)
-
-      assert_file("lib/authority_ecto/accounts/token/purpose.ex", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
-      end)
-
       assert_file("lib/authority_ecto/accounts/lock.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock"
+        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
       end)
 
       assert_file("test/authority_ecto/accounts/lock_test.exs", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.LockTest"
-      end)
-
-      assert_file("lib/authority_ecto/accounts/lock/reason.ex", fn file ->
-        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
       end)
 
       assert_file("lib/authority_ecto/accounts/attempt.ex", fn file ->
@@ -112,8 +103,6 @@ defmodule Authority.Ecto.Gen.ContextTest do
     within_project(fn ->
       capture_io(fn -> Generator.run(["Accounts", "--no-tokenization"]) end)
       refute_file("lib/authority_ecto/accounts/token.ex")
-      refute_file("lib/authority_ecto/accounts/token/hmac.ex")
-      refute_file("lib/authority_ecto/accounts/token/purpose.ex")
 
       assert_file("lib/authority_ecto/accounts/accounts.ex", fn file ->
         refute file =~ "Authority.Tokenization"

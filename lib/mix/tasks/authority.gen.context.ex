@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Authority.Gen.Context do
 
     Add a secret to your configuration for storing tokens:
 
-        config #{inspect(context.otp_app)}, #{inspect(context.token_hmac.module)},
+        config #{inspect(context.otp_app)}, #{inspect(context.token.module)}.HMAC,
           secret_key: "some secure value"
     """)
   end
@@ -91,8 +91,6 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     spec
     |> put_file("token.ex", context.token.file)
     |> put_file("token_test.exs", context.token.test_file)
-    |> put_file("token/hmac.ex", context.token_hmac.file)
-    |> put_file("token/purpose.ex", context.token_purpose.file)
     |> put_behaviour(Authority.Tokenization)
     |> put_config(:token_schema, context.token.module)
   end
@@ -101,7 +99,6 @@ defmodule Mix.Tasks.Authority.Gen.Context do
     spec
     |> put_file("lock.ex", context.lock.file)
     |> put_file("lock_test.exs", context.lock.test_file)
-    |> put_file("lock/reason.ex", context.lock_reason.file)
     |> put_file("attempt.ex", context.attempt.file)
     |> put_file("attempt_test.exs", context.attempt.test_file)
     |> put_behaviour(Authority.Locking)
