@@ -26,6 +26,12 @@ defmodule Authority.Ecto.HMACTest do
       assert Type.dump("value") ==
                {:ok, "4485C853B0D13593389A00B317DA829322F3A3734D63C339E97EAD273441CA45"}
     end
+
+    test "respects nil" do
+      assert Type.cast(nil) == {:ok, nil}
+      assert Type.dump(nil) == {:ok, nil}
+      assert Type.load(nil) == {:ok, nil}
+    end
   end
 
   describe ".hash/2" do

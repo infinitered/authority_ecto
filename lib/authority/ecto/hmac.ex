@@ -97,9 +97,11 @@ defmodule Authority.Ecto.HMAC do
       def type, do: :string
 
       @doc false
+      def cast(nil), do: {:ok, nil}
       def cast(value), do: {:ok, to_string(value)}
 
       @doc false
+      def dump(nil), do: {:ok, nil}
       def dump(value), do: {:ok, HMAC.hash(value, HMAC.secret!(@config))}
 
       @doc false
