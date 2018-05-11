@@ -23,32 +23,65 @@ defmodule Authority.Ecto.Gen.ContextTest do
         assert file =~ "send_forgot_password_email"
       end)
 
+      assert_file("test/authority_ecto/accounts/accounts_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.AccountsTest"
+        assert file =~ "use AuthorityEcto.DataCase"
+      end)
+
       assert_file("lib/authority_ecto/accounts/user.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.User"
+      end)
+
+      assert_file("test/authority_ecto/accounts/user_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.UserTest"
       end)
 
       assert_file("lib/authority_ecto/accounts/token.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token"
       end)
 
+      assert_file("test/authority_ecto/accounts/token_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.TokenTest"
+      end)
+
       assert_file("lib/authority_ecto/accounts/token/hmac.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMAC"
+      end)
+
+      assert_file("test/authority_ecto/accounts/token/hmac_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Token.HMACTest"
       end)
 
       assert_file("lib/authority_ecto/accounts/token/purpose.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Token.Purpose"
       end)
 
+      assert_file("test/authority_ecto/accounts/token/purpose_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Token.PurposeTest"
+      end)
+
       assert_file("lib/authority_ecto/accounts/lock.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock"
+      end)
+
+      assert_file("test/authority_ecto/accounts/lock_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.LockTest"
       end)
 
       assert_file("lib/authority_ecto/accounts/lock/reason.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Lock.Reason"
       end)
 
+      assert_file("test/authority_ecto/accounts/lock/reason_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.Lock.ReasonTest"
+      end)
+
       assert_file("lib/authority_ecto/accounts/attempt.ex", fn file ->
         assert file =~ "defmodule AuthorityEcto.Accounts.Attempt"
+      end)
+
+      assert_file("test/authority_ecto/accounts/attempt_test.exs", fn file ->
+        assert file =~ "defmodule AuthorityEcto.Accounts.AttemptTest"
       end)
 
       assert [path] = Path.wildcard("priv/repo/migrations/*_authority_ecto.exs")
