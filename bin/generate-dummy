@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Generate a new Phoenix app
+
+set -e
+
+function add_dep {
+  perl -pi -e "s|{:phoenix,(.*)},$|{:phoenix,\1},\n      $1,|" mix.exs
+}
+
+# Make sure phoenix is installed
+yes | mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez
+
+# Create a new temp directory
+app="tmp/dummy"
+dep=$(pwd)
+
+# Create a new phoenix app, but don't install deps
+yes n | mix phx.new "$app" --no-brunch
+
+# Enter the directory for our app
+cd "$app"
+
+# Add some dependencies to mix.exs
+add_dep "{:authority_ecto, path: \"$dep\"}"
+add_dep '{:bcrypt_elixir, ">= 0.0.0"}'
+
+# Configure the secret for the HMAC
+echo 'config :dummy, Dummy.Accounts.Token.HMAC, secret_key: "askldfjasklfsdafjaslk"' >> config/test.exs
+
+# Install deps and compile
+mix do deps.get, deps.compile
