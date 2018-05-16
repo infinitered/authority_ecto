@@ -7,7 +7,7 @@ defmodule Authority.Ecto.Test.Token do
   import Authority.Ecto.Changeset
 
   defmodule Purpose do
-    use Exnumerator, values: [:any, :recovery, :other]
+    use Authority.Ecto.Enum, values: [:any, :recovery, :other]
   end
 
   defmodule HMAC do

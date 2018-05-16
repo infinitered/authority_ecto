@@ -6,7 +6,7 @@ defmodule Authority.Ecto.Test.Lock do
   import Ecto.Changeset
 
   defmodule Reason do
-    use Exnumerator, values: [:too_many_attempts]
+    use Authority.Ecto.Enum, values: [:too_many_attempts]
   end
 
   schema "locks" do
