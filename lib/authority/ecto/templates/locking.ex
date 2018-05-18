@@ -87,6 +87,15 @@ defmodule Authority.Ecto.Template.Locking do
 
       @doc false
       @impl Authority.Authentication
+      def before_validate(user, _purpose) do
+        case get_lock(user) do
+          {:ok, lock} -> {:error, lock}
+          _other -> :ok
+        end
+      end
+
+      @doc false
+      @impl Authority.Authentication
       def failed(user, _error) do
         create_attempt(user)
 

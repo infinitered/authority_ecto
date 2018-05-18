@@ -32,14 +32,14 @@ defmodule Authority.Ecto.Template.LockingTest do
       end
 
       assert {:error, %Lock{reason: :too_many_attempts}} =
-               Accounts.tokenize({"valid@email.com", "password"})
+               Accounts.authenticate({"valid@email.com", "password"})
     end
   end
 
   describe ".lock/2" do
     test "locks a user account", %{user: user} do
       assert {:ok, %Lock{}} = Accounts.lock(user, :too_many_attempts)
-      assert {:error, %Lock{}} = Accounts.tokenize({"valid@email.com", "password"})
+      assert {:error, %Lock{}} = Accounts.authenticate({"valid@email.com", "password"})
     end
   end
 

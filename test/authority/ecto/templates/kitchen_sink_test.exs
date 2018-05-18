@@ -31,7 +31,7 @@ defmodule Authority.Ecto.KitchenSinkTest do
         Accounts.authenticate({"valid@email.com", "invalid"})
       end
 
-      assert {:error, %Lock{}} = Accounts.tokenize({"valid@email.com", "password"})
+      assert {:error, %Lock{}} = Accounts.authenticate({"valid@email.com", "password"})
     end
   end
 end

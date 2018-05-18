@@ -64,7 +64,7 @@ defmodule Authority.Ecto.Template.Tokenization do
 
       def validate(credential, user, purpose), do: super(credential, user, purpose)
 
-      # TOKENIZATION 
+      # TOKENIZATION
       # —————————————————————————————————————————————————————————————————————————
 
       use Authority.Tokenization
@@ -147,13 +147,9 @@ defmodule Authority.Ecto.Template.Tokenization do
             %@token_schema{@token_user_assoc => user}
             |> @token_schema.changeset(%{@token_purpose_field => purpose})
 
-          case get_lock(user) do
-            {:ok, lock} ->
-              {:error, lock}
-
-            _other ->
-              unlock(user)
-              @repo.insert(changeset)
+          with {:ok, token} <- @repo.insert(changeset) do
+            :ok = unlock(user)
+            {:ok, token}
           end
         end
       end
