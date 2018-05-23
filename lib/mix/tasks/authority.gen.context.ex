@@ -3,6 +3,50 @@ defmodule Mix.Tasks.Authority.Gen.Context do
 
   alias Mix.Authority.Ecto.Context
 
+  @shortdoc "Generate a context with Authority"
+
+  @moduledoc """
+  Generates a new context with Authority ready to go.
+
+      mix authority.gen.context Accounts
+
+  The following files will be created (assuming the provided context name is `Accounts`):
+
+    * `lib/<your app>/accounts/accounts.ex`
+    * `test/<your app>/accounts/accounts_test.exs`
+    * `lib/<your app>/accounts/user.ex`
+    * `test/<your app>/accounts/user_test.exs`
+    * `lib/<your app>/accounts/token.ex`
+    * `test/<your app>/accounts/token_test.exs`
+    * `lib/<your app>/accounts/lock.ex`
+    * `test/<your app>/accounts/lock_test.exs`
+    * `lib/<your app>/accounts/attempt.ex`
+    * `test/<your app>/accounts/attempt_test.exs`
+    * `priv/repo/migrations/<timestamp>_authority_ecto.ex`
+
+  The generated files expect the following modules to exist (where
+  `MyApp` is the top-level namespace for your application):
+
+    * `MyApp.Repo`
+    * `MyApp.DataCase`
+
+  If you created your application using `mix phx.new`, these modules where
+  already defined for you.
+
+  ## Options
+
+    * `--no-locking` - do not generate files for locking accounts
+      after a number of failed attempts
+
+    * `--no-recovery` - do not generate files for password resets
+
+    * `--no-tokenization` - do not generate files for creating tokens. When
+      choosing this option, you must also provide `--no-recovery`
+
+    * `--no-registration` - do not generate files for creating/updating users
+
+  """
+
   @context_template "priv/templates/authority.gen.context"
 
   @switches [
@@ -23,7 +67,6 @@ defmodule Mix.Tasks.Authority.Gen.Context do
   @doc """
   Generate a new context with Authority.Ecto.Template preconfigured.
   """
-  @shortdoc "Generate a context with Authority"
   def run([name | args]) do
     context = Context.new(name)
     {files, behaviours, config} = build_features(context, args)
@@ -49,6 +92,13 @@ defmodule Mix.Tasks.Authority.Gen.Context do
         config #{inspect(context.otp_app)}, #{inspect(context.token.module)}.HMAC,
           secret_key: "some secure value"
     """)
+  end
+
+  def run(args) do
+    Mix.raise(
+      "expected authority.gen.migration to receive a name for the new context, " <>
+        "got: #{inspect(Enum.join(args, " "))}"
+    )
   end
 
   defp render(source, binding) do
