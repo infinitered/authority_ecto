@@ -32,6 +32,8 @@ defmodule Authority.Ecto.EnumTest do
   end
 
   test "load/1" do
+    assert Type.load(nil) == {:ok, nil}
+
     assert Type.load(:any) == :error
     assert Type.load("any") == {:ok, :any}
 
