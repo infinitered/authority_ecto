@@ -99,6 +99,14 @@ defmodule <%= inspect context.module %>Test do
     test "does not recover incorrect emails" do
       assert Accounts.recover("garbage@example.com") == {:error, :invalid_email}
     end
+
+    test "allows the user to reset password", %{user: user} do
+      assert {:ok, token} = Accounts.tokenize(user, :recovery)
+      assert {:ok, %User{}} = Accounts.update_user(token, %{
+        password: "new_pa$$word",
+        password_confirmation: "new_pa$$word"
+      })
+    end
   end
 <% end %><%= if Authority.Locking in behaviours do %>
   describe "locking" do
@@ -107,21 +115,33 @@ defmodule <%= inspect context.module %>Test do
 
     test "locks an account after 5 attempts", %{user: user} do
       for _ <- 1..5 do
-        assert {:error, _} = Accounts.authenticate({user.email, "garbage"})
+        assert {:error, :invalid_password} = Accounts.authenticate({user.email, "garbage"})
       end
 
-      assert {:error, %Lock{reason: :too_many_attempts}} =
-               Accounts.tokenize({user.email, "pa$$word"})
+      assert {:error, %Lock{}} = Accounts.authenticate({user.email, "garbage"})
     end
 
-    test "can be locked and unlocked", %{user: user} do
+    test "clears the lock after a recovery", %{user: user} do
       assert {:ok, %Lock{}} = Accounts.lock(user, :too_many_attempts)
-      assert {:error, %Lock{}} = Accounts.tokenize(user)
+      assert {:error, %Lock{}} = Accounts.authenticate({user.email, "pa$$word"})
+
+      assert {:ok, token} = Accounts.tokenize(user, :recovery)
+      assert {:ok, user} = Accounts.update_user(token, %{
+        password: "new_pa$$word",
+        password_confirmation: "new_pa$$word"
+      })
+
+      assert {:ok, %User{}} = Accounts.authenticate({user.email, "new_pa$$word"})
+    end
+
+    test "can be unlocked manually", %{user: user} do
+      assert {:ok, %Lock{}} = Accounts.lock(user, :too_many_attempts)
+      assert {:error, %Lock{}} = Accounts.authenticate({user.email, "pa$$word"})
 
       assert {:ok, %Lock{}} = Accounts.get_lock(user)
 
       assert :ok = Accounts.unlock(user)
-      assert {:ok, %Token{}} = Accounts.tokenize(user)
+      assert {:ok, %User{}} = Accounts.authenticate({user.email, "pa$$word"})
     end
   end
 <% end %>
