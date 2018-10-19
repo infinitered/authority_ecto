@@ -120,6 +120,7 @@ defmodule Authority.Ecto.Template.Tokenization do
           #{inspect(__MODULE__)}.get_token("invalid")
           # => {:error, :not_found}
       """
+      @impl Authority.Tokenization
       @spec get_token(String.t()) :: {:ok, @token_schema.t()} | {:error, :not_found}
       def get_token(token) when is_binary(token) do
         case @repo.get_by(@token_schema, [{@token_field, token}]) do
