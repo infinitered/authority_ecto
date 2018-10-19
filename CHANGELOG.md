@@ -2,7 +2,28 @@
 
 ## [Unreleased](https://github.com/infinitered/authority_ecto/tree/HEAD)
 
-[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.1...HEAD)
+[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.2...HEAD)
+
+**Closed issues:**
+
+- Missing @impl for function get\_token/1 callback \(specified in Authority.Tokenization\) [\#35](https://github.com/infinitered/authority_ecto/issues/35)
+- Primary Key of UUID throws test error [\#34](https://github.com/infinitered/authority_ecto/issues/34)
+- Accounts.get\_token returns hashed token instead of raw token [\#33](https://github.com/infinitered/authority_ecto/issues/33)
+- Avoid reading/deleting the locks on every request [\#24](https://github.com/infinitered/authority_ecto/issues/24)
+
+**Merged pull requests:**
+
+- Document the context generator and Authority.Enum [\#32](https://github.com/infinitered/authority_ecto/pull/32) ([rzane](https://github.com/rzane))
+- Restore the locking behavior [\#31](https://github.com/infinitered/authority_ecto/pull/31) ([rzane](https://github.com/rzane))
+- Authority.Ecto.Enum [\#29](https://github.com/infinitered/authority_ecto/pull/29) ([rzane](https://github.com/rzane))
+- Faster dev cycle for integration tests [\#28](https://github.com/infinitered/authority_ecto/pull/28) ([rzane](https://github.com/rzane))
+- Don't attempt to HMAC a nil value [\#27](https://github.com/infinitered/authority_ecto/pull/27) ([rzane](https://github.com/rzane))
+- Generate tests [\#26](https://github.com/infinitered/authority_ecto/pull/26) ([rzane](https://github.com/rzane))
+- Lock/unlock around the tokenize event [\#25](https://github.com/infinitered/authority_ecto/pull/25) ([rzane](https://github.com/rzane))
+- Context generator [\#22](https://github.com/infinitered/authority_ecto/pull/22) ([rzane](https://github.com/rzane))
+
+## [v0.1.2](https://github.com/infinitered/authority_ecto/tree/v0.1.2) (2018-02-07)
+[Full Changelog](https://github.com/infinitered/authority_ecto/compare/v0.1.1...v0.1.2)
 
 **Closed issues:**
 
