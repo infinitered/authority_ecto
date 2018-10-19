@@ -240,6 +240,7 @@ defmodule Authority.Ecto.Template.Registration do
            #{inspect(__MODULE__)}.change_user(%#{inspect(@user_schema)}{}, %{...})
            # => {:ok, %Ecto.Changeset{}}
         """
+        @impl Authority.Registration
         @spec change_user :: {:ok, Ecto.Changeset.t()} | {:error, term}
         @spec change_user(@user_schema.t()) :: {:ok, Ecto.Changeset.t()} | {:error, term}
         @spec change_user(@user_schema.t(), map) :: {:ok, Ecto.Changeset.t()} | {:error, term}
